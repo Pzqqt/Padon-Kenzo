@@ -51,6 +51,7 @@
 #define FW_READ_TIMEOUT 4000000
 
 #define ANC_DETECT_RETRY_CNT 7
+#define WCD_MBHC_SPL_HS_CNT  2
 
 static int det_extn_cable_en;
 module_param(det_extn_cable_en, int,
