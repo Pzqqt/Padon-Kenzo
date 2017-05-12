@@ -14937,7 +14937,6 @@ int wlan_hdd_cfg80211_set_ie( hdd_adapter_t *pAdapter,
             VOS_ASSERT(0);
             return -EINVAL;
         }
-
         hddLog(VOS_TRACE_LEVEL_INFO, "%s: IE[0x%X], LEN[%d]",
             __func__, elementId, eLen);
 
