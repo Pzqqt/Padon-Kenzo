@@ -207,7 +207,7 @@ static VOS_STATUS hdd_parse_ese_beacon_req(tANI_U8 *pValue,
 #define NUM_OF_STA_DATA_TO_PRINT 16
 
 #ifdef WLAN_FEATURE_RMC
-#define WLAN_NLINK_CESIUM 30
+extern unsigned int wlan_nlink_cesium;
 #endif
 
 //wait time for beacon miss rate.
@@ -332,7 +332,7 @@ static int __hdd_netdev_notifier_call(struct notifier_block * nb,
    if (NULL == pHddCtx)
    {
       hddLog(VOS_TRACE_LEVEL_FATAL,"%s: HDD Context Null Pointer", __func__);
-      VOS_ASSERT(0);
+//    VOS_ASSERT(0);
       return NOTIFY_DONE;
    }
    if (pHddCtx->isLogpInProgress)
@@ -7842,13 +7842,13 @@ static int hdd_open_cesium_nl_sock()
    int ret = 0;
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0))
-   cesium_nl_srv_sock = netlink_kernel_create(&init_net, WLAN_NLINK_CESIUM,
+   cesium_nl_srv_sock = netlink_kernel_create(&init_net, wlan_nlink_cesium,
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,7,0))
                                               THIS_MODULE,
 #endif
                                               &cfg);
 #else
-   cesium_nl_srv_sock = netlink_kernel_create(&init_net, WLAN_NLINK_CESIUM,
+   cesium_nl_srv_sock = netlink_kernel_create(&init_net, wlan_nlink_cesium,
                                         WLAN_NLINK_MCAST_GRP_ID, NULL, NULL, THIS_MODULE);
 #endif
 

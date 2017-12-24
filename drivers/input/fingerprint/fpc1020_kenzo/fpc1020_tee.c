@@ -86,6 +86,27 @@ static int __init setup_kenzo_fpsensor(char *str)
 }
 __setup("androidboot.fpsensor=", setup_kenzo_fpsensor);
 
+unsigned int netlink_test = 30;
+unsigned int wlan_nlink_cesium = 29;
+
+static int __init setup_netlinks(char *str)
+{
+	if (!strncmp(str, "los", strlen(str))) {
+		netlink_test = 30; 		/* LOS mode */
+		wlan_nlink_cesium = 29; /* LOS mode  */
+		pr_info("GOODIX/PRIMA: android.gdxnetlink LOS mode..\n");
+    }
+    if (!strncmp(str, "old", strlen(str))) {
+        netlink_test = 29;		/* non-LOS mode */
+        wlan_nlink_cesium = 30;	/* non-LOS mode */
+        pr_info("GOODIX/PRIMA: android.gdxnetlink OLD mode..\n");
+    }
+
+	return netlink_test;
+}
+__setup("android.gdxnetlink=", setup_netlinks);
+EXPORT_SYMBOL(wlan_nlink_cesium);
+
 static int vreg_setup(struct fpc1020_data *fpc1020, const char *name,
 		      bool enable)
 {
