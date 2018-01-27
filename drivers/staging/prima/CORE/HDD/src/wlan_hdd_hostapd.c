@@ -844,6 +844,272 @@ bool hdd_set_sap_auth_offload(hdd_adapter_t *pHostapdAdapter,
 }
 #endif
 
+/**
+* wlansap_get_phymode() - get SAP phymode.
+* @pctx: Pointer to the global vos context; a handle to SAP's control block
+*        can be extracted from its context. When MBSSID feature is enabled,
+*        SAP context is directly passed to SAP APIs.
+*
+* This function provides current phymode of SAP interface.
+*
+* Return: phymode with eCsrPhyMode type.
+*/
+static eCsrPhyMode
+wlansap_get_phymode(v_PVOID_t pctx)
+{
+   ptSapContext psapctx = VOS_GET_SAP_CB(pctx);
+
+   if (!psapctx) {
+       VOS_TRACE(VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_ERROR,
+                 "%s: Invalid SAP pointer from pCtx", __func__);
+       return eCSR_DOT11_MODE_AUTO;
+   }
+   return psapctx->csrRoamProfile.phyMode;
+}
+
+/**
+ * hdd_update_chandef() - Function to update channel width and center freq
+ * @chandef: cfg80211 chan def
+ * @cb_mode: chan offset
+ *
+ * This function will be called to update channel width and center freq
+ *
+ * Return: None
+ */
+static void
+hdd_update_chandef(struct cfg80211_chan_def *chandef,
+                   ePhyChanBondState cb_mode)
+{
+   uint8_t  center_chan, chan;
+
+   if (cb_mode <= PHY_DOUBLE_CHANNEL_HIGH_PRIMARY)
+       return;
+
+   chan = vos_freq_to_chan(chandef->chan->center_freq);
+   chandef->width = NL80211_CHAN_WIDTH_80;
+   switch (cb_mode) {
+   case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_CENTERED:
+   case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_LOW:
+        center_chan = chan + 2;
+        break;
+   case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW:
+        center_chan = chan + 6;
+        break;
+   case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH:
+   case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_CENTERED:
+        center_chan = chan - 2;
+        break;
+   case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH:
+        center_chan = chan - 6;
+        break;
+   default:
+        center_chan = chan;
+        break;
+   }
+
+   chandef->center_freq1 = vos_chan_to_freq(center_chan);
+}
+
+/**
+ * hdd_chan_change_notify() - Function to notify hostapd about channel change
+ * @hostapd_adapter: hostapd adapter
+ * @dev: Net device structure
+ * @oper_chan: New operating channel
+ *
+ * This function is used to notify hostapd about the channel change
+ *
+ * Return: Success on intimating userspace
+ *
+ */
+static VOS_STATUS hdd_chan_change_notify(hdd_adapter_t *hostapd_adapter,
+   struct net_device *dev, uint8_t oper_chan)
+{
+   struct ieee80211_channel *chan;
+   struct cfg80211_chan_def chandef;
+   enum nl80211_channel_type channel_type;
+   eCsrPhyMode phy_mode;
+   ePhyChanBondState cb_mode;
+   uint32_t freq;
+   tHalHandle  hal = WLAN_HDD_GET_HAL_CTX(hostapd_adapter);
+   tSmeConfigParams sme_config;
+
+   if (!hal) {
+       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
+                 "%s: hal is NULL", __func__);
+       return VOS_STATUS_E_FAILURE;
+   }
+
+   freq = vos_chan_to_freq(oper_chan);
+
+   chan = __ieee80211_get_channel(hostapd_adapter->wdev.wiphy, freq);
+
+   if (!chan) {
+       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
+                "%s: Invalid input frequency for channel conversion", __func__);
+       return VOS_STATUS_E_FAILURE;
+   }
+
+   phy_mode = wlansap_get_phymode(
+                          (WLAN_HDD_GET_CTX(hostapd_adapter))->pvosContext);
+   sme_GetConfigParam(hal, &sme_config);
+   if (oper_chan <= 14)
+       cb_mode = sme_get_cb_phy_mode_from_cb_ini_mode(
+                    sme_config.csrConfig.channelBondingMode24GHz);
+   else
+       cb_mode = sme_get_cb_phy_mode_from_cb_ini_mode(
+                    sme_config.csrConfig.channelBondingMode5GHz);
+
+   switch (phy_mode) {
+   case eCSR_DOT11_MODE_11n:
+   case eCSR_DOT11_MODE_11n_ONLY:
+   case eCSR_DOT11_MODE_11ac:
+   case eCSR_DOT11_MODE_11ac_ONLY:
+        switch (cb_mode) {
+        case PHY_SINGLE_CHANNEL_CENTERED:
+             channel_type = NL80211_CHAN_HT20;
+             break;
+        case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_LOW:
+        case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_CENTERED:
+        case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH:
+        case PHY_DOUBLE_CHANNEL_HIGH_PRIMARY:
+             channel_type = NL80211_CHAN_HT40MINUS;
+             break;
+        case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW:
+        case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_CENTERED:
+        case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH:
+        case PHY_DOUBLE_CHANNEL_LOW_PRIMARY:
+             channel_type = NL80211_CHAN_HT40PLUS;
+             break;
+        default:
+             channel_type = NL80211_CHAN_HT20;
+             break;
+        }
+        break;
+   default:
+        channel_type = NL80211_CHAN_NO_HT;
+        break;
+   }
+
+   cfg80211_chandef_create(&chandef, chan, channel_type);
+   if ((phy_mode == eCSR_DOT11_MODE_11ac) ||
+       (phy_mode == eCSR_DOT11_MODE_11ac_ONLY))
+        hdd_update_chandef(&chandef, cb_mode);
+
+   VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
+             "%s: phy_mode %d cb_mode %d chann_type %d oper_chan %d width %d freq_1 %d",
+             __func__, phy_mode, cb_mode, channel_type, oper_chan,
+             chandef.width, chandef.center_freq1);
+
+
+   cfg80211_ch_switch_notify(dev, &chandef);
+
+   return VOS_STATUS_SUCCESS;
+}
+
+/**
+ * hdd_convert_dot11mode_from_phymode() - get dot11mode to phymode
+ * @phymode: phy mode
+ *
+ * This function is used to get dot11mode to phymode
+ *
+ * Return: dot11mode
+ */
+static int hdd_convert_dot11mode_from_phymode(int phymode)
+{
+	switch (phymode) {
+
+	case VOS_MODE_11A:
+		return QCA_WLAN_802_11_MODE_11A;
+
+	case VOS_MODE_11B:
+		return QCA_WLAN_802_11_MODE_11B;
+
+	case VOS_MODE_11G:
+	case VOS_MODE_11GONLY:
+		return QCA_WLAN_802_11_MODE_11G;
+
+	case VOS_MODE_11NA_HT20:
+	case VOS_MODE_11NG_HT20:
+	case VOS_MODE_11NA_HT40:
+	case VOS_MODE_11NG_HT40:
+		return QCA_WLAN_802_11_MODE_11N;
+
+	case VOS_MODE_11AC_VHT20:
+	case VOS_MODE_11AC_VHT40:
+	case VOS_MODE_11AC_VHT80:
+	case VOS_MODE_11AC_VHT20_2G:
+	case VOS_MODE_11AC_VHT40_2G:
+	case VOS_MODE_11AC_VHT80_2G:
+#ifdef CONFIG_160MHZ_SUPPORT
+	case VOS_MODE_11AC_VHT80_80:
+	case VOS_MODE_11AC_VHT160:
+#endif
+		return QCA_WLAN_802_11_MODE_11AC;
+
+	default:
+		return QCA_WLAN_802_11_MODE_INVALID;
+	}
+
+}
+
+/**
+ * hdd_fill_station_info() - fill station information
+ * @sap_ctx: sap context
+ * @event: assoc event
+ * This function updates sta information from assoc event
+ *
+ * Return: none
+ */
+static void hdd_fill_station_info(ptSapContext sap_ctx,
+				  tSap_StationAssocReassocCompleteEvent *event)
+{
+	struct hdd_cache_sta_info *sta_info = sap_ctx->cache_sta_info;
+	int i=0;
+
+	/* check if there is any dup entry */
+	while (i < WLAN_MAX_STA_COUNT) {
+		if (vos_mem_compare(sta_info[i].macAddrSTA.bytes,
+				    event->staMac.bytes,
+				    VOS_MAC_ADDR_SIZE)) {
+			vos_mem_zero(&sta_info[i], sizeof(*sta_info));
+			break;
+		}
+		i++;
+	}
+	if (i >= WLAN_MAX_STA_COUNT) {
+		i = 0;
+		while (i < WLAN_MAX_STA_COUNT) {
+			if (sta_info[i].isUsed != TRUE)
+				break;
+			i++;
+		}
+	}
+
+	if (i < WLAN_MAX_STA_COUNT) {
+		sta_info[i].isUsed = TRUE;
+		sta_info[i].ucSTAId = event->staId;
+		vos_mem_copy(sta_info[i].macAddrSTA.bytes,
+			     event->staMac.bytes,
+			      VOS_MAC_ADDR_SIZE);
+		sta_info[i].freq = vos_chan_to_freq(event->chan_info.chan_id);
+		sta_info[i].ch_width = event->ch_width;
+		sta_info[i].nss = 1;
+		sta_info[i].dot11_mode = hdd_convert_dot11mode_from_phymode(
+							event->chan_info.info);
+		if (event->HTCaps.present) {
+			sta_info[i].ht_present = TRUE;
+			hdd_copy_ht_caps(&sta_info[i].ht_caps, &event->HTCaps);
+		}
+		if (event->VHTCaps.present) {
+			sta_info[i].vht_present = TRUE;
+			hdd_copy_vht_caps(&sta_info[i].vht_caps,
+					  &event->VHTCaps);
+		}
+	}
+	else
+		VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, "reached max staid, stainfo can't be cached");
+}
+
 VOS_STATUS hdd_hostapd_SAPEventCB( tpSap_Event pSapEvent, v_PVOID_t usrDataForCallback)
 {
     hdd_adapter_t *pHostapdAdapter;
@@ -1097,6 +1363,9 @@ VOS_STATUS hdd_hostapd_SAPEventCB( tpSap_Event pSapEvent, v_PVOID_t usrDataForCa
                     hddLog(LOGW, FL("Failed to register STA %d "MAC_ADDRESS_STR""),
                                      vos_status, MAC_ADDR_ARRAY(wrqu.addr.sa_data));
             }
+            if (VOS_IS_STATUS_SUCCESS(vos_status))
+                hdd_fill_station_info(pSapCtx,
+                        &pSapEvent->sapevt.sapStationAssocReassocCompleteEvent);
 
             staId =
                 pSapEvent->sapevt.sapStationAssocReassocCompleteEvent.staId;
@@ -1315,6 +1584,32 @@ VOS_STATUS hdd_hostapd_SAPEventCB( tpSap_Event pSapEvent, v_PVOID_t usrDataForCa
                 hddLog(LOGW, FL("hdd_stop_bss_link failed %d"), vos_status);
             }
             return VOS_STATUS_SUCCESS;
+       case eSAP_CHANNEL_CHANGED_EVENT:
+            hddLog(LOG1, FL("Received eSAP_CHANNEL_CHANGED_EVENT event"));
+
+            return hdd_chan_change_notify(pHostapdAdapter, dev,
+                           pSapEvent->sapevt.sap_chan_selected.new_chan);
+    case eSAP_STA_LOSTLINK_DETECTED:
+        {
+            tSap_StationDisassocCompleteEvent *disassoc_comp =
+                    &pSapEvent->sapevt.sapStationDisassocCompleteEvent;
+
+            struct hdd_cache_sta_info *sta_info = hdd_get_cache_stainfo(
+                                              pSapCtx->cache_sta_info,
+                                              disassoc_comp->staMac.bytes);
+           if (!sta_info) {
+               hddLog(LOGE, FL("invalid cache sta info"));
+               return VOS_STATUS_E_FAILURE;
+           }
+
+            WLANTL_GetSAPStaRSSi(pVosContext, disassoc_comp->staId,
+                        &sta_info->rssi);
+            sta_info->rx_rate =
+                    wlan_tl_get_sta_rx_rate(pVosContext, disassoc_comp->staId);
+            if (disassoc_comp->reason != eSAP_USR_INITATED_DISASSOC)
+                sta_info->reason_code = disassoc_comp->reason;
+            return VOS_STATUS_SUCCESS;
+        }
 
         default:
             hddLog(LOG1,"SAP message is not handled");
@@ -2148,6 +2443,18 @@ static __iw_softap_setparam(struct net_device *dev,
                                      (uint32_t *)&set_value, 1);
                 break;
             }
+        case QCSAP_PARAM_SET_CHANNEL_CHANGE:
+            if ((WLAN_HDD_SOFTAP == pHostapdAdapter->device_mode) ||
+                (WLAN_HDD_P2P_GO == pHostapdAdapter->device_mode)) {
+                hddLog(LOG1, FL("ET Channel Change to new channel= %d"),
+                       set_value);
+                ret = wlansap_set_channel_change(pVosContext, set_value, false);
+            } else {
+                hddLog(LOGE, FL("Channel %d Change Failed, Device in not in SAP/GO mode"),
+                       set_value);
+                ret = -EINVAL;
+            }
+            break;
         default:
             hddLog(LOGE, FL("Invalid setparam command %d value %d"),
                     sub_cmd, set_value);
@@ -4776,6 +5083,8 @@ static const struct iw_priv_args hostapd_private_args[] = {
       IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1, 0,  "setProximity" },
   { QCSAP_PARAM_CAP_TSF,
      IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1, 0,  "cap_tsf" },
+  {QCSAP_PARAM_SET_CHANNEL_CHANGE,
+   IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1, 0, "setChanChange"},
   { QCSAP_PARAM_SET_WOWL,
       IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1, 0,  "wowl" },
   { QCSAP_IOCTL_GETPARAM,
@@ -5402,3 +5711,32 @@ void hdd_force_scc_restart_sap(hdd_adapter_t *adapter,
   }
   return;
 }
+
+/**
+ * hdd_get_cache_stainfo() - get stainfo for the specified peer
+ * @stainfo: array of station info
+ * @mac_addr: mac address of requested peer
+ *
+ * This function find the stainfo for the peer with mac_addr
+ *
+ * Return: stainfo if found, NULL if not found
+ */
+struct hdd_cache_sta_info *hdd_get_cache_stainfo(
+				struct hdd_cache_sta_info *astainfo,
+				u8 *mac_addr)
+{
+	struct hdd_cache_sta_info *stainfo = NULL;
+	int i;
+
+	for (i = 0; i < WLAN_MAX_STA_COUNT; i++) {
+		if (vos_mem_compare(&astainfo[i].macAddrSTA,
+		    mac_addr,
+		    HDD_MAC_ADDR_LEN)) {
+			stainfo = &astainfo[i];
+			break;
+		}
+	}
+
+	return stainfo;
+}
+

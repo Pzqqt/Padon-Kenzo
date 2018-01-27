@@ -301,6 +301,21 @@
 #define CFG_ENABLE_DYNAMIC_RA_START_RATE_MAX     (65535)
 #define CFG_ENABLE_DYNAMIC_RA_START_RATE_DEFAULT (0)
 
+/*
+ * gEnableRTTsupport
+ *
+ * @Min: 0 - Disabled
+ * @Max: 1 - Enabled
+ * @Default: 1 - Enabled
+ *
+ * The param is used to enable/disable support for RTT
+ */
+
+#define CFG_ENABLE_RTT_SUPPORT            "gEnableRTTSupport"
+#define CFG_ENABLE_RTT_SUPPORT_DEFAULT    (1)
+#define CFG_ENABLE_RTT_SUPPORT_MIN        (0)
+#define CFG_ENABLE_RTT_SUPPORT_MAX        (1)
+
 /* Bit mask value to enable RTS/CTS for different modes
  * for 2.4 GHz, HT20 - 0x0001, for 2.4 GHz, HT40 - 0x0002
  * for 2.4 GHz, VHT20 - 0x0004, for 2.4 GHz, VHT40 - 0x0008
@@ -2152,7 +2167,7 @@ static __inline tANI_U32 defHddRateToDefCfgRate( tANI_U32 defRateIndex )
 #define CFG_LINK_LAYER_STATS_ENABLE                  "gEnableLLStats"
 #define CFG_LINK_LAYER_STATS_ENABLE_MIN              (0)
 #define CFG_LINK_LAYER_STATS_ENABLE_MAX              (1)
-#define CFG_LINK_LAYER_STATS_ENABLE_DEFAULT          (0)
+#define CFG_LINK_LAYER_STATS_ENABLE_DEFAULT          (1)
 #endif
 
 #ifdef WLAN_FEATURE_EXTSCAN
@@ -3093,6 +3108,40 @@ This feature requires the dependent cfg.ini "gRoamPrefer5GHz" set to 1 */
 #define CFG_TRIGGER_NULLFRAME_BEFORE_HB_MAX        (1)
 #define CFG_TRIGGER_NULLFRAME_BEFORE_HB_DEFAULT    (0)
 
+/*
+ * If enabled ecsa will be used to switch channel to force scc else SAP
+ * will be restarted.
+ */
+#define CFG_FORCE_SCC_WITH_ECSA_NAME       "force_scc_with_ecsa"
+#define CFG_FORCE_SCC_WITH_ECSA_MIN        (0)
+#define CFG_FORCE_SCC_WITH_ECSA_MAX        (1)
+#define CFG_FORCE_SCC_WITH_ECSA_DEFAULT    (0)
+
+#define CFG_STA_SAP_SCC_ON_DFS_CHAN             "sta_sap_scc_on_dfs_chan"
+#define CFG_STA_SAP_SCC_ON_DFS_CHAN_MIN         (0)
+#define CFG_STA_SAP_SCC_ON_DFS_CHAN_MAX         (1)
+#define CFG_STA_SAP_SCC_ON_DFS_CHAN_DEFAULT     (0)
+
+/*
+ * gEnableAggBTCScoOUI is used to enable aggregation during SCO
+ * with specific AP based on OUI. If set to nothing, feature is
+ * enabled for all APs. Ini supports only single OUI.
+ * ex: gEnableAggBTCScoOUI=74-EA-CB - enable with specific AP
+ */
+#define CFG_ENABLE_AGG_BTC_SCO_OUI_NAME       "gEnableAggBTCScoOUI"
+#define CFG_ENABLE_AGG_BTC_SCO_OUI_DEFAULT    ""
+
+/*
+ * gNumBuffBTCSco is used to set block ack buffer size for
+ * aggregation during SCO. If this is set to 0, aggregation
+ * during SCO feature is disabled. To enable aggregation
+ * during SCO, gNumBuffBTCSco should be set to non zero value.
+ */
+#define CFG_NUM_BUFF_BTC_SCO_NAME       "gNumBuffBTCSco"
+#define CFG_NUM_BUFF_BTC_SCO_MIN        (0)
+#define CFG_NUM_BUFF_BTC_SCO_MAX        (10)
+#define CFG_NUM_BUFF_BTC_SCO_DEFAULT    (0)
+
 /*--------------------------------------------------------------------------- 
   Type declarations
   -------------------------------------------------------------------------*/ 
@@ -3694,6 +3743,11 @@ typedef struct
    uint32_t                    max_sched_scan_plan_iterations;
    uint32_t                    sta_auth_retries_for_code17;
    uint32_t                    trigger_nullframe_before_hb;
+   bool                        force_scc_with_ecsa;
+   uint8_t                     enable_rtt_support;
+   uint32_t                    sta_sap_scc_on_dfs_chan;
+   uint8_t                     enable_aggr_btc_sco_oui[9];
+   uint8_t                     num_buff_aggr_btc_sco;
 } hdd_config_t;
 
 /*--------------------------------------------------------------------------- 
@@ -3708,7 +3762,8 @@ VOS_STATUS hdd_execute_config_command(hdd_context_t *pHddCtx, char *command);
 tANI_BOOLEAN hdd_is_okc_mode_enabled(hdd_context_t *pHddCtx);
 
 VOS_STATUS hdd_string_to_u8_array(char *str, tANI_U8 *intArray, tANI_U8 *len,
-				  tANI_U8 intArrayMaxLen, char *seperator);
+                                  tANI_U8 intArrayMaxLen, char *seperator,
+                                  bool to_hex);
 
 #ifdef MDNS_OFFLOAD
 int hdd_string_to_string_array(char *data, uint8_t *datalist,

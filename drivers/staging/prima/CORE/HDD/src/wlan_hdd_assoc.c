@@ -108,6 +108,9 @@ v_U8_t ccpRSNOui08[ HDD_RSN_OUI_SIZE ] = { 0x00, 0x0F, 0xAC, 0x05 };
 
 #define BEACON_FRAME_IES_OFFSET 12
 
+/* The time after add bss, in which SAP should start ECSA to move to SCC */
+#define ECSA_SCC_CHAN_CHANGE_DEFER_INTERVAL 1500
+
 #ifdef WLAN_FEATURE_11W
 void hdd_indicateUnprotMgmtFrame(hdd_adapter_t *pAdapter,
                             tANI_U32 nFrameLength,
@@ -267,18 +270,15 @@ static inline void hdd_connSaveConnectedBssType( hdd_station_ctx_t *pHddStaCtx, 
 }
 
 /**
- * hdd_copy_vht_caps()- copy vht caps info from roam info to
- *  hdd station context.
- * @hdd_sta_ctx: pointer to hdd station context
- * @roam_info: pointer to roam info
+ * hdd_copy_ht_caps()- Populate kernel HT caps structure object
+ * @hdd_ht_cap: HT capabilities of kernel type
+ * @roam_ht_cap: HT capabilities maintained locally within driver
  *
  * Return: None
  */
-static void hdd_copy_ht_caps(hdd_station_ctx_t *hdd_sta_ctx,
-                             tCsrRoamInfo *roam_info)
+void hdd_copy_ht_caps(struct ieee80211_ht_cap *hdd_ht_cap,
+                      tDot11fIEHTCaps *roam_ht_cap)
 {
-    tDot11fIEHTCaps *roam_ht_cap = &roam_info->ht_caps;
-    struct ieee80211_ht_cap *hdd_ht_cap = &hdd_sta_ctx->conn_info.ht_caps;
     uint32_t i, temp_ht_cap;
 
     vos_mem_zero(hdd_ht_cap, sizeof(struct ieee80211_ht_cap));
@@ -317,7 +317,6 @@ static void hdd_copy_ht_caps(hdd_station_ctx_t *hdd_sta_ctx,
         hdd_ht_cap->cap_info |= IEEE80211_HT_CAP_40MHZ_INTOLERANT;
     if (roam_ht_cap->lsigTXOPProtection)
         hdd_ht_cap->cap_info |= IEEE80211_HT_CAP_LSIG_TXOP_PROT;
-
 
     /* 802.11n HT capability AMPDU settings (for ampdu_params_info) */
     if (roam_ht_cap->maxRxAMPDUFactor)
@@ -440,11 +439,13 @@ static void hdd_copy_ht_caps(hdd_station_ctx_t *hdd_sta_ctx,
     for (i = 0; i < IEEE80211_HT_MCS_MASK_LEN; ++i)
         hdd_ht_cap->mcs.rx_mask[i] =
             roam_ht_cap->supportedMCSSet[i];
+
         hdd_ht_cap->mcs.rx_highest =
             ((short) (roam_ht_cap->supportedMCSSet[11]) << 8) |
             ((short) (roam_ht_cap->supportedMCSSet[10]));
         hdd_ht_cap->mcs.tx_params =
             roam_ht_cap->supportedMCSSet[12];
+
 }
 
 
@@ -463,19 +464,15 @@ static void hdd_copy_ht_caps(hdd_station_ctx_t *hdd_sta_ctx,
 #define VHT_CAP_VHT_LINK_ADAPTATION_VHT_MRQ_MFB_SHIFT	26
 
 /**
- * hdd_copy_ht_caps()- copy ht caps info from roam info to
- *  hdd station context.
- * @hdd_sta_ctx: pointer to hdd station context
- * @roam_info: pointer to roam info
+ * hdd_copy_vht_caps()- Populate kernel VHT caps structure object
+ * @hdd_ht_cap: VHT capabilities of kernel type
+ * @roam_ht_cap: VHT capabilities maintained locally within driver
  *
  * Return: None
  */
-static void hdd_copy_vht_caps(hdd_station_ctx_t *hdd_sta_ctx,
-                              tCsrRoamInfo *roam_info)
+void hdd_copy_vht_caps(struct ieee80211_vht_cap *hdd_vht_cap,
+			      tDot11fIEVHTCaps *roam_vht_cap)
 {
-    tDot11fIEVHTCaps *roam_vht_cap = &roam_info->vht_caps;
-    struct ieee80211_vht_cap *hdd_vht_cap =
-                    &hdd_sta_ctx->conn_info.vht_caps;
     uint32_t temp_vht_cap;
 
     vos_mem_zero(hdd_vht_cap, sizeof(struct ieee80211_vht_cap));
@@ -713,13 +710,14 @@ static void hdd_save_bss_info(hdd_adapter_t *adapter,
         hdd_sta_ctx->conn_info.operationChannel);
     if (roam_info->vht_caps.present) {
         hdd_sta_ctx->conn_info.conn_flag.vht_present = true;
-        hdd_copy_vht_caps(hdd_sta_ctx, roam_info);
+        hdd_copy_vht_caps(&hdd_sta_ctx->conn_info.vht_caps,
+                          &roam_info->vht_caps);
     } else {
         hdd_sta_ctx->conn_info.conn_flag.vht_present = false;
     }
     if (roam_info->ht_caps.present) {
         hdd_sta_ctx->conn_info.conn_flag.ht_present = true;
-        hdd_copy_ht_caps(hdd_sta_ctx, roam_info);
+        hdd_copy_ht_caps(&hdd_sta_ctx->conn_info.ht_caps, &roam_info->ht_caps);
     } else {
         hdd_sta_ctx->conn_info.conn_flag.ht_present = false;
     }
@@ -1151,10 +1149,10 @@ static void hdd_SendAssociationEvent(struct net_device *dev,tCsrRoamInfo *pCsrRo
              }
         }
 #endif
-        hddLog(VOS_TRACE_LEVEL_INFO, MAC_ADDRESS_STR " connected to "
-                MAC_ADDRESS_STR,
-                MAC_ADDR_ARRAY(pAdapter->macAddressCurrent.bytes),
-                MAC_ADDR_ARRAY(wrqu.ap_addr.sa_data));
+	hddLog(VOS_TRACE_LEVEL_ERROR, MAC_ADDRESS_STR " connected to "
+	       MAC_ADDRESS_STR,
+	       MAC_ADDR_ARRAY(pAdapter->macAddressCurrent.bytes),
+	       MAC_ADDR_ARRAY(wrqu.ap_addr.sa_data));
         hdd_SendUpdateBeaconIEsEvent(pAdapter, pCsrRoamInfo);
 
         hdd_manage_delack_timer(pHddCtx);
@@ -1539,6 +1537,8 @@ static eHalStatus hdd_DisConnectHandler( hdd_adapter_t *pAdapter, tCsrRoamInfo *
     //TxTimeoutCount need to reset in case of disconnect handler
     pAdapter->hdd_stats.hddTxRxStats.continuousTxTimeoutCount = 0;
 
+    wlan_hdd_check_and_stop_mon(pAdapter, false);
+
     INIT_COMPLETION(pAdapter->disconnect_comp_var);
     /* If only STA mode is on */
     if((pHddCtx->concurrency_mode <= 1) &&
@@ -1576,7 +1576,7 @@ static eHalStatus hdd_DisConnectHandler( hdd_adapter_t *pAdapter, tCsrRoamInfo *
        wlan_hdd_decr_active_session(pHddCtx, pAdapter->device_mode);
     }
     spin_unlock_bh(&pAdapter->lock_for_active_session);
-
+    vos_flush_delayed_work(&pHddCtx->ecsa_chan_change_work);
     hdd_clearRoamProfileIe( pAdapter );
 
     hdd_wmm_init( pAdapter );
@@ -1922,7 +1922,6 @@ static VOS_STATUS hdd_roamRegisterSTA( hdd_adapter_t *pAdapter,
    staDesc.ucIsEseSta = pRoamInfo->isESEAssoc;
 #endif //FEATURE_WLAN_ESE
 
-#ifdef VOLANS_ENABLE_SW_REPLAY_CHECK
    /* check whether replay check is valid for the station or not */
    if( (eCSR_ENCRYPT_TYPE_TKIP == connectedCipherAlgo) || (eCSR_ENCRYPT_TYPE_AES == connectedCipherAlgo))
    {
@@ -1933,7 +1932,6 @@ static VOS_STATUS hdd_roamRegisterSTA( hdd_adapter_t *pAdapter,
        VOS_TRACE( VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
                  "HDD register TL ucIsReplayCheckValid %d: Replay check is needed for station", staDesc.ucIsReplayCheckValid);
    }
-
    else
    {
       /* For other encryption modes replay check is
@@ -1942,7 +1940,6 @@ static VOS_STATUS hdd_roamRegisterSTA( hdd_adapter_t *pAdapter,
         VOS_TRACE( VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
                  "HDD register TL ucIsReplayCheckValid %d", staDesc.ucIsReplayCheckValid);
    }
-#endif
 
 #ifdef FEATURE_WLAN_WAPI
    hddLog(LOG1, "%s: WAPI STA Registered: %d", __func__, pAdapter->wapi_info.fIsWapiSta);
@@ -2107,6 +2104,35 @@ void hdd_PerformRoamSetKeyComplete(hdd_adapter_t *pAdapter)
         hddLog(LOGE, "%s: Set Key complete failure", __func__);
     }
     pHddStaCtx->roam_info.deferKeyComplete = FALSE;
+}
+
+/**
+ * hdd_schedule_ecsa_chan_change_work() - schedule ecsa chan change work
+ * @hal: hal context
+ * @sta_session_id: sta session id
+ *
+ * Return: void.
+ */
+static void
+hdd_schedule_ecsa_chan_change_work(hdd_context_t *hdd_ctx,
+                                                  uint8_t sta_session_id)
+{
+   v_TIME_t conn_start_time;
+   int32_t time_diff;
+
+   conn_start_time = sme_get_connect_strt_time(hdd_ctx->hHal, sta_session_id);
+   time_diff = vos_timer_get_system_time() - conn_start_time;
+
+   if (time_diff < 0)
+       time_diff = ECSA_SCC_CHAN_CHANGE_DEFER_INTERVAL;
+   else if (time_diff > ECSA_SCC_CHAN_CHANGE_DEFER_INTERVAL)
+       time_diff = 0;
+   else
+       time_diff = ECSA_SCC_CHAN_CHANGE_DEFER_INTERVAL - time_diff;
+
+   hddLog(LOG1, FL("schedule ecsa_chan_change_work after %d ms"), time_diff);
+   schedule_delayed_work(&hdd_ctx->ecsa_chan_change_work,
+                          msecs_to_jiffies(time_diff));
 }
 
 static eHalStatus hdd_AssociationCompletionHandler( hdd_adapter_t *pAdapter, tCsrRoamInfo *pRoamInfo,
@@ -2662,10 +2688,18 @@ static eHalStatus hdd_AssociationCompletionHandler( hdd_adapter_t *pAdapter, tCs
                 hddLog(VOS_TRACE_LEVEL_INFO,"Restart Sap as SAP channel is %d "
                        "and STA channel is %d", pHostapdAdapter->sessionCtx.ap.operatingChannel,
                        (int)pRoamInfo->pBssDesc->channelId);
-                hdd_hostapd_stop(pHostapdAdapter->dev);
-                if (pHddCtx->cfg_ini->enable_sap_auth_offload)
-                  hdd_force_scc_restart_sap(pHostapdAdapter,
-                      pHddCtx, (int)pRoamInfo->pBssDesc->channelId);
+                if (pHddCtx->cfg_ini->force_scc_with_ecsa)
+                {
+                    hdd_schedule_ecsa_chan_change_work(pHddCtx,
+                                                       pAdapter->sessionId);
+                }
+                else
+                {
+                    hdd_hostapd_stop(pHostapdAdapter->dev);
+                    if (pHddCtx->cfg_ini->enable_sap_auth_offload)
+                       hdd_force_scc_restart_sap(pHostapdAdapter,
+                             pHddCtx, (int)pRoamInfo->pBssDesc->channelId);
+                }
 
              }
         }
@@ -3424,12 +3458,10 @@ VOS_STATUS hdd_roamRegisterTDLSSTA(hdd_adapter_t *pAdapter,
     /* tdls Direct Link do not need bcastSig */
     staDesc.ucBcastSig  = 0 ;
 
-#ifdef VOLANS_ENABLE_SW_REPLAY_CHECK
     if(staDesc.ucProtectedFrame)
         staDesc.ucIsReplayCheckValid = VOS_TRUE;
     else
         staDesc.ucIsReplayCheckValid = VOS_FALSE;
-#endif
 
     staDesc.ucInitState = WLANTL_STA_CONNECTED ;
 
@@ -3899,6 +3931,12 @@ eHalStatus hdd_smeRoamCallback( void *pContext, tCsrRoamInfo *pRoamInfo, tANI_U3
 #endif
             }
            break;
+        case eCSR_ROAM_LOSTLINK_DETECTED:
+             {
+                 if (wlan_hdd_check_and_stop_mon(pAdapter, false))
+                     halStatus = eHAL_STATUS_FAILURE;
+             }
+             break;
         case eCSR_ROAM_LOSTLINK:
         case eCSR_ROAM_DISASSOCIATED:
             {
@@ -4153,6 +4191,47 @@ eHalStatus hdd_smeRoamCallback( void *pContext, tCsrRoamInfo *pRoamInfo, tANI_U3
               else
                   hddLog(LOG1, FL("UPDATE_SCAN_RESULT returned NULL"));
          }
+       case eCSR_ROAM_STA_CHANNEL_SWITCH:
+         {
+             hdd_adapter_t *pHostapdAdapter = NULL;
+             pHddCtx = WLAN_HDD_GET_CTX(pAdapter);
+             pHddStaCtx = WLAN_HDD_GET_STATION_CTX_PTR(pAdapter);
+
+             if (!pHddCtx || !pHddStaCtx) {
+                 hddLog(LOG1, FL("Invalid pHddCtx or pHddStaCtx"));
+                 break;
+             }
+
+             hddLog(LOG1, FL("eCSR_ROAM_STA_CHANNEL_SWITCH: new channel %hu"),
+                     pRoamInfo->chan_info.chan_id);
+
+             pHddStaCtx->conn_info.operationChannel =
+                 pRoamInfo->chan_info.chan_id;
+
+             pHostapdAdapter = hdd_get_adapter(pHddCtx, WLAN_HDD_SOFTAP);
+             if (pHostapdAdapter &&
+                    (test_bit(SOFTAP_BSS_STARTED,
+                    &pHostapdAdapter->event_flags)))
+             {
+                 /* Restart SAP if its operating channel is different
+                  * from AP channel.
+                  */
+                 hddLog(VOS_TRACE_LEVEL_INFO,"SAP chan %d, STA chan %d, force_scc_with_ecsa %d",
+                         pHostapdAdapter->sessionCtx.ap.operatingChannel,
+                         pRoamInfo->chan_info.chan_id,
+                         pHddCtx->cfg_ini->force_scc_with_ecsa);
+                 if ((pHddCtx->cfg_ini->force_scc_with_ecsa ) &&
+                         (pHostapdAdapter->sessionCtx.ap.operatingChannel !=
+                          pRoamInfo->chan_info.chan_id))
+                 {
+                     hdd_schedule_ecsa_chan_change_work(pHddCtx,
+                             pAdapter->sessionId);
+                 }
+                 else
+                     hddLog(LOG1, FL("SAP restart not required"));
+             } else
+                 hddLog(LOG1, FL("SAP not active, nothing to do"));
+         }
          break;
        default:
             break;
@@ -4326,6 +4405,7 @@ static tANI_S32 hdd_ProcessGENIE(hdd_adapter_t *pAdapter,
     tDot11fIERSN dot11RSNIE;
     tDot11fIEWPA dot11WPAIE;
     tANI_U32 i;
+    tANI_U32 status;
     tANI_U8 *pRsnIe;
     tANI_U16 RSNIeLen;
     tPmkidCacheInfo PMKIDCache[4]; // Local transfer memory
@@ -4351,10 +4431,17 @@ static tANI_S32 hdd_ProcessGENIE(hdd_adapter_t *pAdapter,
         pRsnIe = gen_ie + 2;
         RSNIeLen = gen_ie_len - 2;
         // Unpack the RSN IE
-        dot11fUnpackIeRSN((tpAniSirGlobal) halHandle,
+        status = dot11fUnpackIeRSN((tpAniSirGlobal) halHandle,
                             pRsnIe,
                             RSNIeLen,
                             &dot11RSNIE);
+        if (DOT11F_FAILED(status))
+        {
+            hddLog(LOGE,
+                       FL("Parse failure in hdd_ProcessGENIE (0x%08x)"),
+                       status);
+            return -EINVAL;
+        }
         // Copy out the encryption and authentication types
         hddLog(LOG1, FL("%s: pairwise cipher suite count: %d"),
                 __func__, dot11RSNIE.pwise_cipher_suite_count );
@@ -4719,6 +4806,9 @@ int __iw_set_essid(struct net_device *dev,
     if( SIR_MAC_MAX_SSID_LENGTH < wrqu->essid.length )
         return -EINVAL;
     pRoamProfile = &pWextState->roamProfile;
+
+    if (wlan_hdd_check_and_stop_mon(pAdapter, true))
+        return -EINVAL;
 
     /*Try disconnecting if already in connected state*/
     status = wlan_hdd_try_disconnect(pAdapter);

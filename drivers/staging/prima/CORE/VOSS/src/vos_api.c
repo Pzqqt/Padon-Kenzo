@@ -3616,6 +3616,16 @@ void get_rate_and_MCS(per_packet_stats *stats, uint32 rateindex)
     stats->MCS.short_gi = ratetbl->short_gi;
 }
 
+v_U16_t vos_get_rate_from_rateidx(uint32 rateindex)
+{
+	v_U16_t rate = 0;
+
+	if (rateindex < STATS_MAX_RATE_INDEX)
+		rate = rateidx_to_rate_bw_preamble_sgi_table[rateindex].rate;
+
+	return rate;
+}
+
 bool vos_isPktStatsEnabled(void)
 {
     bool value;
@@ -3890,4 +3900,19 @@ void vos_update_arp_rx_drop_reorder(void)
    }
 
    pAdapter->hdd_stats.hddArpStats.rx_host_drop_reorder++;
+}
+
+v_BOOL_t vos_check_monitor_state(void)
+{
+	hdd_context_t *hdd_ctx;
+
+	v_CONTEXT_t vos_ctx = vos_get_global_context(VOS_MODULE_ID_HDD, NULL);
+	if (!vos_ctx)
+		return VOS_FALSE;
+
+	hdd_ctx = vos_get_context(VOS_MODULE_ID_HDD, vos_ctx);
+	if (!hdd_ctx)
+		return VOS_FALSE;
+
+	return wlan_hdd_check_monitor_state(hdd_ctx);
 }

@@ -229,6 +229,7 @@ static placeHolderInCapBitmap supportEnabledFeatures[] =
    ,FEATURE_NOT_SUPPORTED          //69 reserved for FATAL_EVENT_LOGGING
    ,FEATURE_NOT_SUPPORTED          //70 reserved for WIFI_DUAL_BAND_ENABLE
    ,PROBE_RSP_TEMPLATE_VER1        //71
+   ,STA_MONITOR_SCC                //72
 };
 
 /*-------------------------------------------------------------------------- 
@@ -17194,9 +17195,9 @@ WDI_ProcessInitScanRsp
   }
   else if (WDI_STATUS_SUCCESS != wdiStatus)
   {
-//     WPAL_TRACE(eWLAN_MODULE_DAL_CTRL, eWLAN_PAL_TRACE_LEVEL_ERROR,
-//               "Error returned WDI_ProcessInitScanRspi:%d BMPS%d",
-//               wdiStatus, pWDICtx->bInBmps);
+     WPAL_TRACE(eWLAN_MODULE_DAL_CTRL, eWLAN_PAL_TRACE_LEVEL_ERROR,
+               "Error returned WDI_ProcessInitScanRspi:%d BMPS%d",
+               wdiStatus, pWDICtx->bInBmps);
   }
 
   /*Notify UMAC*/
@@ -22897,6 +22898,9 @@ WDI_ProcessHALDumpCmdRsp
      WDI_ASSERT(0);
      return WDI_STATUS_E_FAILURE;
   }
+
+  WPAL_TRACE(eWLAN_MODULE_DAL_CTRL, eWLAN_PAL_TRACE_LEVEL_WARN,
+             "%s: WDI process HAL dump cmd rsp", __func__);
 
   wdiHALDumpCmdRspCb = (WDI_HALDumpCmdRspCb)pWDICtx->pfncRspCB;
 

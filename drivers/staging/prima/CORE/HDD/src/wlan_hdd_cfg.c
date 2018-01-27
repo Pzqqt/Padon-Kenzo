@@ -3436,6 +3436,13 @@ REG_VARIABLE( CFG_EXTSCAN_ENABLE, WLAN_PARAM_Integer,
                   CFG_SAP_SCAN_BAND_PREFERENCE_MIN,
                   CFG_SAP_SCAN_BAND_PREFERENCE_MAX ),
 
+   REG_VARIABLE(CFG_ENABLE_RTT_SUPPORT, WLAN_PARAM_Integer,
+                  hdd_config_t, enable_rtt_support,
+                  VAR_FLAGS_OPTIONAL,
+                  CFG_ENABLE_RTT_SUPPORT_DEFAULT,
+                  CFG_ENABLE_RTT_SUPPORT_MIN,
+                  CFG_ENABLE_RTT_SUPPORT_MAX ),
+
    REG_VARIABLE( CFG_ENABLE_DYNAMIC_RA_START_RATE_NAME, WLAN_PARAM_Integer,
                   hdd_config_t, enableDynamicRAStartRate,
                   VAR_FLAGS_OPTIONAL |
@@ -3936,6 +3943,32 @@ REG_VARIABLE( CFG_EXTSCAN_ENABLE, WLAN_PARAM_Integer,
                 CFG_TRIGGER_NULLFRAME_BEFORE_HB_DEFAULT,
                 CFG_TRIGGER_NULLFRAME_BEFORE_HB_MIN,
                 CFG_TRIGGER_NULLFRAME_BEFORE_HB_MAX ),
+
+  REG_VARIABLE(CFG_FORCE_SCC_WITH_ECSA_NAME, WLAN_PARAM_Integer,
+               hdd_config_t, force_scc_with_ecsa,
+               VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+               CFG_FORCE_SCC_WITH_ECSA_DEFAULT,
+               CFG_FORCE_SCC_WITH_ECSA_MIN,
+               CFG_FORCE_SCC_WITH_ECSA_MAX ),
+
+  REG_VARIABLE(CFG_STA_SAP_SCC_ON_DFS_CHAN, WLAN_PARAM_HexInteger,
+               hdd_config_t, sta_sap_scc_on_dfs_chan,
+               VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+               CFG_STA_SAP_SCC_ON_DFS_CHAN_DEFAULT,
+               CFG_STA_SAP_SCC_ON_DFS_CHAN_MIN,
+               CFG_STA_SAP_SCC_ON_DFS_CHAN_MAX),
+
+  REG_VARIABLE_STRING(CFG_ENABLE_AGG_BTC_SCO_OUI_NAME, WLAN_PARAM_String,
+                      hdd_config_t, enable_aggr_btc_sco_oui,
+                      VAR_FLAGS_OPTIONAL,
+                      (void *) CFG_ENABLE_AGG_BTC_SCO_OUI_DEFAULT),
+
+  REG_VARIABLE(CFG_NUM_BUFF_BTC_SCO_NAME, WLAN_PARAM_Integer,
+               hdd_config_t, num_buff_aggr_btc_sco,
+               VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+               CFG_NUM_BUFF_BTC_SCO_DEFAULT,
+               CFG_NUM_BUFF_BTC_SCO_MIN,
+               CFG_NUM_BUFF_BTC_SCO_MAX ),
 };
 
 /*
@@ -4586,6 +4619,16 @@ static void print_hdd_cfg(hdd_context_t *pHddCtx)
             "Name = [%s] Value = [%u] ",
             CFG_TRIGGER_NULLFRAME_BEFORE_HB_NAME,
             pHddCtx->cfg_ini->trigger_nullframe_before_hb);
+
+    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH,
+            "Name = [%s] Value = [%u] ",
+            CFG_FORCE_SCC_WITH_ECSA_NAME,
+            pHddCtx->cfg_ini->force_scc_with_ecsa);
+
+    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH,
+            "Name = [%s] value = [%u]",
+            CFG_STA_SAP_SCC_ON_DFS_CHAN,
+            pHddCtx->cfg_ini->sta_sap_scc_on_dfs_chan);
 }
 
 
@@ -5108,9 +5151,9 @@ static void hdd_set_power_save_config(hdd_context_t *pHddCtx, tSmeConfigParams *
 
 VOS_STATUS hdd_string_to_u8_array(char *str, tANI_U8 *intArray,
 				   tANI_U8 *len, tANI_U8 intArrayMaxLen,
-				   char *seperator)
+				   char *seperator, bool to_hex)
 {
-   char *s = str;
+   char *format, *s = str;
 
    if( str == NULL || intArray == NULL || len == NULL )
    {
@@ -5118,12 +5161,13 @@ VOS_STATUS hdd_string_to_u8_array(char *str, tANI_U8 *intArray,
    }
    *len = 0;
 
+   format = (to_hex) ? "%02x" : "%d";
    while ( (s != NULL) && (*len < intArrayMaxLen) )
    {
       int val;
       //Increment length only if sscanf succesfully extracted one element.
       //Any other return value means error. Ignore it.
-      if( sscanf(s, "%d", &val ) == 1 )
+      if( sscanf(s, format, &val ) == 1 )
       {
          if (val > 255 || val < 0)
              return VOS_STATUS_E_FAILURE;
@@ -5154,13 +5198,14 @@ int hdd_string_to_string_array(char *data, uint8_t *datalist,
     if ((data == NULL) || ( datalist == NULL) || (num_entries == NULL))
         return VOS_STATUS_E_INVAL;
 
-    str = vos_mem_malloc(strlen((char *)data));
+    str = vos_mem_malloc(strlen((char *)data) + 1);
     if (!str) {
        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
                  "%s str allocation failed",__func__);
        return -ENOMEM;
     }
     vos_mem_copy(str, data, strlen((char *)data));
+    str[strlen((char *)data)] = '\0';
     temp_str = str;
     /* parse the string */
     while (str && ('\0' != *str) && (num < max_entries)) {
@@ -6275,7 +6320,6 @@ v_BOOL_t hdd_update_config_dat( hdd_context_t *pHddCtx )
    return fStatus;
 }
 
-
 /**---------------------------------------------------------------------------
 
   \brief hdd_init_set_sme_config() -
@@ -6293,6 +6337,7 @@ VOS_STATUS hdd_set_sme_config( hdd_context_t *pHddCtx )
    VOS_STATUS status = VOS_STATUS_SUCCESS;
    eHalStatus halStatus;
    tpSmeConfigParams smeConfig;
+   tANI_U8 i;
 
    hdd_config_t *pConfig = pHddCtx->cfg_ini;
 
@@ -6513,7 +6558,8 @@ VOS_STATUS hdd_set_sme_config( hdd_context_t *pHddCtx )
    hdd_string_to_u8_array( pConfig->neighborScanChanList,
                                         smeConfig->csrConfig.neighborRoamConfig.neighborScanChanList.channelList,
                                         &smeConfig->csrConfig.neighborRoamConfig.neighborScanChanList.numChannels,
-                                        WNI_CFG_VALID_CHANNEL_LIST_LEN, "," );
+                                        WNI_CFG_VALID_CHANNEL_LIST_LEN, ",",
+                                        false);
 #endif
 
    smeConfig->csrConfig.addTSWhenACMIsOff = pConfig->AddTSWhenACMIsOff;
@@ -6593,11 +6639,23 @@ VOS_STATUS hdd_set_sme_config( hdd_context_t *pHddCtx )
 
    smeConfig->csrConfig.sta_auth_retries_for_code17 =
                         pHddCtx->cfg_ini->sta_auth_retries_for_code17;
+   if (hdd_string_to_u8_array(pHddCtx->cfg_ini->enable_aggr_btc_sco_oui,
+       smeConfig->csrConfig.agg_btc_sco_oui, &i, VENDOR_AP_OUI_SIZE, "-",
+       true) != VOS_STATUS_SUCCESS)
+       vos_mem_set(smeConfig->csrConfig.agg_btc_sco_oui, VENDOR_AP_OUI_SIZE, 0);
 
+   smeConfig->csrConfig.num_ba_buff_btc_sco =
+                        pHddCtx->cfg_ini->num_buff_aggr_btc_sco;
+   smeConfig->csrConfig.num_ba_buff =
+                        pHddCtx->cfg_ini->numBuffAdvert;
    sme_set_mgmt_frm_via_wq5((tHalHandle)(pHddCtx->hHal),
            pHddCtx->cfg_ini->sendMgmtPktViaWQ5);
 
    vos_set_multicast_logging(pHddCtx->cfg_ini->multicast_host_msgs);
+
+   smeConfig->csrConfig.sta_sap_scc_on_dfs_chan =
+           pHddCtx->cfg_ini->sta_sap_scc_on_dfs_chan;
+
    halStatus = sme_UpdateConfig( pHddCtx->hHal, smeConfig);
    if ( !HAL_STATUS_SUCCESS( halStatus ) )
    {
