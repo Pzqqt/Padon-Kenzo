@@ -56,12 +56,15 @@
 
 #define WCD9335_RATES_MASK (SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_16000 |\
 			    SNDRV_PCM_RATE_32000 | SNDRV_PCM_RATE_48000 |\
-			    SNDRV_PCM_RATE_96000 | SNDRV_PCM_RATE_192000)
+			    SNDRV_PCM_RATE_96000 | SNDRV_PCM_RATE_192000 |\
+			    SNDRV_PCM_RATE_384000)
 /* Fractional Rates */
-#define WCD9335_FRAC_RATES_MASK (SNDRV_PCM_RATE_44100)
+#define WCD9335_FRAC_RATES_MASK (SNDRV_PCM_RATE_44100 | SNDRV_PCM_RATE_88200 |\
+								 SNDRV_PCM_RATE_176400 | SNDRV_PCM_RATE_352800)
 
 #define WCD9335_MIX_RATES_MASK (SNDRV_PCM_RATE_48000 |\
-				SNDRV_PCM_RATE_96000 | SNDRV_PCM_RATE_192000)
+				SNDRV_PCM_RATE_96000 | SNDRV_PCM_RATE_192000 |\
+				SNDRV_PCM_RATE_384000)
 
 #define TASHA_FORMATS_S16_S24_LE (SNDRV_PCM_FMTBIT_S16_LE | \
 				  SNDRV_PCM_FMTBIT_S24_LE | \
@@ -423,12 +426,16 @@ static struct interp_sample_rate int_prim_sample_rate_val[] = {
 	{192000, 0x6},	/* 192K */
 	{384000, 0x7},	/* 384K */
 	{44100, 0x8}, /* 44.1K */
+	{176400, 0x9},	/* 176.4K */
+	{352800, 0x10},	/* 352.8K */
 };
 
 static struct interp_sample_rate int_mix_sample_rate_val[] = {
 	{48000, 0x4},	/* 48K */
 	{96000, 0x5},	/* 96K */
 	{192000, 0x6},	/* 192K */
+	{384000, 0x7},	/* 384K */
+
 };
 
 static const struct wcd9xxx_ch tasha_rx_chs[TASHA_RX_MAX] = {
@@ -3361,7 +3368,7 @@ static int tasha_set_compander(struct snd_kcontrol *kcontrol,
 		break;
 	case COMPANDER_2:
 		snd_soc_update_bits(codec, WCD9335_HPH_R_EN, 0x20,
-				(value ? 0x00:0x20));
+				(value ? 0x00:0x20)); 
 		break;
 	case COMPANDER_3:
 		break;
@@ -10716,6 +10723,8 @@ static int tasha_hw_params(struct snd_pcm_substream *substream,
 		case SNDRV_PCM_FORMAT_S24_3LE:
 			tasha->dai[dai->id].bit_width = 24;
 			break;
+		case SNDRV_PCM_FORMAT_S32_LE:
+			tasha->dai[dai->id].bit_width = 32;
 		}
 		tasha->dai[dai->id].rate = params_rate(params);
 		break;
@@ -10817,8 +10826,8 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.playback = {
 			.stream_name = "AIF1 Playback",
 			.rates = WCD9335_RATES_MASK | WCD9335_FRAC_RATES_MASK,
-			.formats = TASHA_FORMATS_S16_S24_LE,
-			.rate_max = 192000,
+			.formats = TASHA_FORMATS_S16_S24_S32_LE,
+			.rate_max = 384000,
 			.rate_min = 8000,
 			.channels_min = 1,
 			.channels_max = 2,
@@ -10831,7 +10840,7 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.capture = {
 			.stream_name = "AIF1 Capture",
 			.rates = WCD9335_RATES_MASK,
-			.formats = TASHA_FORMATS,
+			.formats = TASHA_FORMATS_S16_S24_LE,
 			.rate_max = 192000,
 			.rate_min = 8000,
 			.channels_min = 1,
@@ -10845,9 +10854,9 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.playback = {
 			.stream_name = "AIF2 Playback",
 			.rates = WCD9335_RATES_MASK | WCD9335_FRAC_RATES_MASK,
-			.formats = TASHA_FORMATS_S16_S24_LE,
+			.formats = TASHA_FORMATS_S16_S24_S32_LE,
 			.rate_min = 8000,
-			.rate_max = 192000,
+			.rate_max = 384000,
 			.channels_min = 1,
 			.channels_max = 2,
 		},
@@ -10859,7 +10868,7 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.capture = {
 			.stream_name = "AIF2 Capture",
 			.rates = WCD9335_RATES_MASK,
-			.formats = TASHA_FORMATS,
+			.formats = TASHA_FORMATS_S16_S24_LE,
 			.rate_max = 192000,
 			.rate_min = 8000,
 			.channels_min = 1,
@@ -10873,9 +10882,9 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.playback = {
 			.stream_name = "AIF3 Playback",
 			.rates = WCD9335_RATES_MASK | WCD9335_FRAC_RATES_MASK,
-			.formats = TASHA_FORMATS_S16_S24_LE,
+			.formats = TASHA_FORMATS_S16_S24_S32_LE,
 			.rate_min = 8000,
-			.rate_max = 192000,
+			.rate_max = 384000,
 			.channels_min = 1,
 			.channels_max = 2,
 		},
@@ -10887,8 +10896,8 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.capture = {
 			.stream_name = "AIF3 Capture",
 			.rates = WCD9335_RATES_MASK,
-			.formats = TASHA_FORMATS,
-			.rate_max = 48000,
+			.formats = TASHA_FORMATS_S16_S24_LE,
+			.rate_max = 192000,
 			.rate_min = 8000,
 			.channels_min = 1,
 			.channels_max = 2,
@@ -10901,9 +10910,9 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.playback = {
 			.stream_name = "AIF4 Playback",
 			.rates = WCD9335_RATES_MASK | WCD9335_FRAC_RATES_MASK,
-			.formats = TASHA_FORMATS_S16_S24_LE,
+			.formats = TASHA_FORMATS_S16_S24_S32_LE,
 			.rate_min = 8000,
-			.rate_max = 192000,
+			.rate_max = 384000,
 			.channels_min = 1,
 			.channels_max = 2,
 		},
@@ -10915,9 +10924,9 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.playback = {
 			.stream_name = "AIF Mix Playback",
 			.rates = WCD9335_RATES_MASK | WCD9335_FRAC_RATES_MASK,
-			.formats = TASHA_FORMATS_S16_S24_LE,
+			.formats = TASHA_FORMATS_S16_S24_S32_LE,
 			.rate_min = 8000,
-			.rate_max = 192000,
+			.rate_max = 384000,
 			.channels_min = 1,
 			.channels_max = 8,
 		},
@@ -10943,9 +10952,9 @@ static struct snd_soc_dai_driver tasha_dai[] = {
 		.id = AIF4_VIFEED,
 		.capture = {
 			.stream_name = "VIfeed",
-			.rates = SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_48000,
+			.rates = WCD9335_RATES_MASK,
 			.formats = TASHA_FORMATS_S16_S24_S32_LE,
-			.rate_max = 48000,
+			.rate_max = 192000,
 			.rate_min = 8000,
 			.channels_min = 1,
 			.channels_max = 4,
