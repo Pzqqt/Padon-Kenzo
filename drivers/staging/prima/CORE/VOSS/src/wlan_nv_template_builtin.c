@@ -27,12 +27,9 @@
 
 /*===========================================================================
                        EDIT HISTORY FOR FILE
-
   This section contains comments describing changes made to the module.
   Notice that changes are listed in reverse chronological order.
-
   $Header:$ $DateTime: $ $Author: $
-
   when        who        what, where, why
   --------    ---        -----------------------------------------------
   04/10/13    kumarpra   nv built in  creation
@@ -46,7 +43,6 @@
   To be auto-generated, or
   This is the source file and the header file can be generated from this
   template file.
-
   Template constructs
      1. TABLE_: struct
      2. INDEX_ENUM: enums, e.g. {RATE_OFDM_6M,RATE_OFDM_54M}
@@ -58,7 +54,6 @@
         4.3 ARRAY_2: two dimensional array, (x, y)
         4.4 ARRAY_3: three dimensional array, (x, y, z)
         4.5 ARRAY_4: four dimensional array, (x, y, z, t)
-
   Implementation notes
      1. Flow of changing NV data format: (TBD) Either change the template and
         generate the header file, or modify header file and auto-generate
@@ -103,7 +98,6 @@
           append a new table, he can encode the template
         in the new data table and append it to NV data, or write a new common
         template section and append the data.
-
   Key "ingredients", (re-iterate the most important features and capabilities)
      1. How to parse the data is embedded in the NV data itself. It removes the
         dependency on header file matching,
@@ -587,9 +581,8 @@ _NV_TEMPLATE_TABLE NvTablesBuiltIn[/*TABLES_MAX*/][TABLE_ENTRIES_MAX] = {
          ((char *)&(nvDefaults.tables.hwCalValues.calData.psSlpTimeOvrHdxLNA5G) -
           (char *)&nvDefaults.tables.hwCalValues.calData),"psSlpTimeOvrHdxLNA5G"},
       {"ed",_ID_U8,SINGULAR,0,0,0,
-         (((char *)&(nvDefaults.tables.hwCalValues.calData.psSlpTimeOvrHdxLNA5G) +
-          sizeof(uint16)) - (char *)&nvDefaults.tables.hwCalValues.calData),
-         "nv_TxBBFSel9MHz"},
+         ((char *)&(nvDefaults.tables.hwCalValues.calData.psSlpTimeOvrHdxLNA5G) -
+          (char *)&nvDefaults.tables.hwCalValues.calData),"nv_TxBBFSel9MHz"},
       {"ee",_ID_U8,SINGULAR,0,0,0,
          ((char *)&(nvDefaults.tables.hwCalValues.calData.hwParam2) -
           (char *)&nvDefaults.tables.hwCalValues.calData),"hwParam2"},
