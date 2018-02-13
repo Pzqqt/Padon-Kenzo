@@ -21,7 +21,7 @@
 /* 
  * Timeout for stopping processes
  */
-unsigned int __read_mostly freeze_timeout_msecs = 20 * MSEC_PER_SEC;
+unsigned int __read_mostly freeze_timeout_msecs = 2 * MSEC_PER_SEC;
 
 static int try_to_freeze_tasks(bool user_only)
 {
@@ -211,6 +211,27 @@ int freeze_kernel_threads(void)
 		thaw_kernel_threads();
 	return error;
 }
+
+#ifdef CONFIG_QUICK_THAW_FINGERPRINTD
+void thaw_fingerprintd(void)
+{
+	struct task_struct *g, *p;
+	struct task_struct *curr = current;
+
+	pm_freezing = false;
+	pm_nosig_freezing = false;
+
+	read_lock(&tasklist_lock);
+	for_each_process_thread(g, p) {
+		if (!memcmp(p->comm, "fingerprintd", 13))
+			__thaw_task(p);
+	}
+	read_unlock(&tasklist_lock);
+
+	pm_freezing = true;
+	pm_nosig_freezing = true;
+}
+#endif
 
 void thaw_processes(void)
 {
