@@ -20,8 +20,8 @@ white='\033[0m'
 red='\033[0;31m'
 gre='\e[0;32m'
 echo -e ""
-echo -e "$gre ====================================\n\n Welcome to Radon building program !\n\n ===================================="
-echo -e "$gre \n 1.Build radon without qc\n\n 2.Build radon with qc\n"
+echo -e "$gre ====================================\n\n Welcome to Padon building program !\n\n ===================================="
+echo -e "$gre \n 1.Build Padon without qc\n\n 2.Build Padon with qc\n"
 echo -n " Enter your choice:"
 read qc
 echo -e "$white"
@@ -62,10 +62,10 @@ else
 cd $KERNEL_DIR/build
 rm *.zip > /dev/null 2>&1
 echo -e "$yellow\n Build succesful, generating flashable zip now \n $white"
-zip -r Radon-Kenzo-Cm-Or.zip * > /dev/null
+zip -r Padon-Kenzo-Cm-Or.zip * > /dev/null
 End=$(date +"%s")
 Diff=$(($End - $Start))
-echo -e "$yellow $KERNEL_DIR/build/Radon-Kenzo-Cm-Or.zip \n$white"
+echo -e "$yellow $KERNEL_DIR/build/Padon-Kenzo-Cm-Or.zip \n$white"
 echo -e "$gre << Build completed in $(($Diff / 60)) minutes and $(($Diff % 60)) seconds, variant($qc) >> \n $white"
 fi
 cd $KERNEL_DIR
