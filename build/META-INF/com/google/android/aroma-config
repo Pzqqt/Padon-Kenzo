@@ -1,4 +1,4 @@
-ini_set("rom_name",             "Radon");
+ini_set("rom_name",             "Padon");
 ini_set("rom_version",          "V6.3.2");
 ini_set("rom_device",           "Kenzo");
 ini_set("rom_date",             "2018.02.17");
@@ -9,12 +9,10 @@ ini_set("force_colorspace","rgba");
 fontresload( "0", "ttf/Roboto-Regular.ttf", "12" );
 fontresload( "1", "ttf/Roboto-Regular.ttf", "16" ); 
 
-splash(2000, "radonsplash");
-
 theme("default");
 
 viewbox(
-    "\nRadon Kernel",
+    "\nPadon Kernel",
 
     "<@center><b>\n" + ini_get("rom_device") + "</b>\n\n</@>" +
     "\n\n\n\n  VERSION\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n" +
@@ -26,7 +24,7 @@ viewbox(
 
 alert(
   "NOTICE:",
-  "For best experience -\n\n1.Don't flash over other kernels. Ensure that you either have a previous version of Radon or the kernel that came with your rom.\n\n2.Do not use any scripts to tune cpu governors, this kernel already does that for your cpu.\n\n",
+  "For best experience -\n\n1.Don't flash over other kernels. Ensure that you either have a previous version of Padon or the kernel that came with your rom.\n\n2.Do not use any scripts to tune cpu governors, this kernel already does that for your cpu.\n\n",
   "@warning",
   "OK"
 );
@@ -78,7 +76,7 @@ selectbox(
 );
 
 menubox(
-  "\n\n<@center>Radon Installer</@>",
+  "\n\n<@center>Padon Installer</@>",
   "<@center><b>\n\n\n\n\n\nReady to install\n</b></@>",
   "",
   "menu.prop",
@@ -94,7 +92,7 @@ endif;
 setvar("retstatus",
 install(
   "\nInstalling",
-  "<@center>\nInstalling Radon Kernel\nPlease wait</@>",
+  "<@center>\nInstalling Padon Kernel\nPlease wait</@>",
   "")
 );
 
