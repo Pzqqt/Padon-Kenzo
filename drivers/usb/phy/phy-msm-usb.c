@@ -6132,12 +6132,12 @@ static int msm_otg_probe(struct platform_device *pdev)
 				ret = devm_gpio_request(&pdev->dev,
 						motg->pdata->hub_reset_gpio,
 						"qcom,hub-reset-gpio");
-				if (ret < 0) {
-					dev_err(&pdev->dev, "gpio req failed for hub reset\n");
-					goto remove_phy;
-				}
-				gpio_direction_output(
-					motg->pdata->hub_reset_gpio, 1);
+			if (ret < 0) {
+				dev_err(&pdev->dev, "gpio req failed for hub reset\n");
+				goto remove_phy;
+			}
+			gpio_direction_output(
+				motg->pdata->hub_reset_gpio, 1);
 
 			if (gpio_is_valid(motg->pdata->switch_sel_gpio)) {
 				ret = devm_gpio_request(&pdev->dev,
