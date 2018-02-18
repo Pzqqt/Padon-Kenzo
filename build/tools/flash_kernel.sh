@@ -40,8 +40,8 @@ chmod 0644 /system/vendor/lib/libthermalclient.so
 chmod 0644 /system/vendor/lib64/libthermalclient.so
 chmod 0644 /system/vendor/lib64/libthermalioctl.so
 fi
-cp /tmp/radon.sh /system/etc/radon.sh
-chmod 644 /system/etc/radon.sh
+cp /tmp/padon.sh /system/etc/padon.sh
+chmod 644 /system/etc/padon.sh
 cp -f /tmp/cpio /sbin/cpio
 cd /tmp/
 /sbin/busybox dd if=/dev/block/bootdevice/by-name/boot of=./boot.img
@@ -64,9 +64,9 @@ if [ -f /tmp/ramdisk/init.darkness.rc ]; then
 rm /tmp/ramdisk/init.darkness.rc
 fi
 # COMPATIBILITY FIXES END
-chmod 0750 /tmp/ramdisk/init.radon.rc
-if [ $(grep -c "import /init.radon.rc" /tmp/ramdisk/init.rc) == 0 ]; then
-   sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.radon.rc" /tmp/ramdisk/init.rc
+chmod 0750 /tmp/ramdisk/init.padon.rc
+if [ $(grep -c "import /init.padon.rc" /tmp/ramdisk/init.rc) == 0 ]; then
+   sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.padon.rc" /tmp/ramdisk/init.rc
 fi
 find . | cpio -o -H newc | gzip > /tmp/boot.img-ramdisk.gz
 rm -r /tmp/ramdisk

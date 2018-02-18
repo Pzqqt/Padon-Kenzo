@@ -1,6 +1,6 @@
 #!/sbin/sh
 
-CONFIGFILE="/tmp/init.radon.rc"
+CONFIGFILE="/tmp/init.padon.rc"
 INTERACTIVE=$(cat /tmp/aroma/interactive.prop | cut -d '=' -f2)
 if [ $INTERACTIVE == 1 ]; then
 TLS="50 1017600:60 1190400:70 1305600:80 1382400:90 1401600:95"
@@ -84,7 +84,7 @@ echo "# VARIABLES FOR SH" >> $CONFIGFILE
 echo "# zrammode=$INTERACTIVE" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# USER TWEAKS" >> $CONFIGFILE
-echo "service usertweaks /system/bin/sh /system/etc/radon.sh" >> $CONFIGFILE
+echo "service usertweaks /system/bin/sh /system/etc/padon.sh" >> $CONFIGFILE
 echo "class main" >> $CONFIGFILE
 echo "group root" >> $CONFIGFILE
 echo "user root" >> $CONFIGFILE
