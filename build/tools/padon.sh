@@ -26,7 +26,7 @@
 	echo 10 > /proc/sys/vm/dirty_background_ratio
     fi
 
-	Mode=`cat /init.radon.rc | grep zrammode`
+	Mode=`cat /init.padon.rc | grep zrammode`
 	Mo=${Mode:11:1}
 	if [ $Mo -eq 1 ] || [ $Mo -eq 3 ]; then
 	echo 536870912 > /sys/block/zram0/disksize
