@@ -1,7 +1,7 @@
 ini_set("rom_name",             "Padon");
-ini_set("rom_version",          "V6.3.7");
+ini_set("rom_version",          "V6.3.8");
 ini_set("rom_device",           "Kenzo");
-ini_set("rom_date",             "2018.02.28");
+ini_set("rom_date",             "2018.03.05");
 
 ini_set("force_colorspace","rgba");
 #ini_set("dp","6");
