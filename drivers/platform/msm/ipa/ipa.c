@@ -1241,6 +1241,18 @@ static long ipa_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			break;
 		}
 		break;
+	case IPA_IOC_GET_HW_VERSION:
+		pyld_sz = sizeof(enum ipa_hw_type);
+		param = kzalloc(pyld_sz, GFP_KERNEL);
+		if (!param) {
+			retval = -ENOMEM;
+			break;
+		}
+		memcpy(param, &ipa_ctx->ipa_hw_type, pyld_sz);
+		if (copy_to_user((u8 *)arg, param, pyld_sz)) {
+			retval = -EFAULT;
+			break;
+		}
 
 	default:        /* redundant, as cmd was checked against MAXNR */
 		ipa_dec_client_disable_clks();
@@ -1495,7 +1507,7 @@ static void ipa_free_buffer(void *user1, int user2)
 	kfree(user1);
 }
 
-int ipa_q6_pipe_delay(bool zip_pipes)
+static int ipa_q6_pipe_delay(bool zip_pipes)
 {
 	u32 reg_val = 0;
 	int client_idx;
