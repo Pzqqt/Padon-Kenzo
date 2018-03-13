@@ -208,9 +208,9 @@ static VOS_STATUS hdd_parse_ese_beacon_req(tANI_U8 *pValue,
 
 #ifdef WLAN_FEATURE_RMC
 #ifdef CONFIG_MACH_XIAOMI_KENZO
-#define WLAN_NLINK_CESIUM 30
-#else
 #define WLAN_NLINK_CESIUM 29
+#else
+#define WLAN_NLINK_CESIUM 30
 #endif
 #endif
 
