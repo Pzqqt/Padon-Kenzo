@@ -18,6 +18,7 @@
 selinx=$(cat /tmp/aroma/padon.prop | grep -e "sel" | cut -d '=' -f2)
 qc=$(cat /tmp/aroma/padon.prop | grep -e "crate" | cut -d '=' -f2)
 therm=$(cat /tmp/aroma/padon.prop | grep -e "thermal" | cut -d '=' -f2)
+jk=$(cat /tmp/aroma/padon.prop | grep -e "jack" | cut -d '=' -f2)
 nos1=`cat /system/build.prop | grep ro.product.name=`
 nos2=${nos1:16:8}
 if [ $nos2 == "nitrogen" ]; then
