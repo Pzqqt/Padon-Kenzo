@@ -114,7 +114,7 @@ form(
 	# JACK DETECTION
 	"jack",				"New Jack Detection",						"",									"group",
 		"1",			"Enable",							"If you have headset jack issues",								"select",
-		"3",			"Disable",						"",									"select.selected",
+		"2",			"Disable",						"",									"select.selected",
 	# UV
 	"uv",				"CPU UV",						"",												"group",
 		"1",			"Default",							"Default",								"select.selected",
