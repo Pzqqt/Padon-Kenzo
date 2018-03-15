@@ -1,8 +1,10 @@
 #!/sbin/sh
 
+rm -rf /tmp/init.padon.rc
 CONFIGFILE="/tmp/init.padon.rc"
-INTERACTIVE=$(cat /tmp/aroma/interactive.prop | cut -d '=' -f2)
-if [ $INTERACTIVE == 1 ]; then
+PROFILE=$(cat /tmp/aroma/profile.prop | cut -d '=' -f2)
+CMODE=$(cat /tmp/aroma/padon.prop | grep -e "cmode" | cut -d '=' -f2)
+if [ $PROFILE == 1 ]; then
 TLS="50 1017600:60 1190400:70 1305600:80 1382400:90 1401600:95"
 TLB="85 1382400:90 1747200:95"
 BOOST="0:1305600 4:1113600"
@@ -22,7 +24,7 @@ SWAP=30
 VFS=100
 GLVL=6
 GFREQ=266666667
-elif [ $INTERACTIVE == 2 ]; then
+elif [ $PROFILE == 2 ]; then
 TLS="75 1017600:85 1190400:95"
 TLB="90 1305600:95"
 BOOST="0"
@@ -42,7 +44,7 @@ SWAP=20
 VFS=40
 GLVL=7
 GFREQ=200000000
-elif [ $INTERACTIVE == 3 ]; then
+elif [ $PROFILE == 3 ]; then
 TLS="40 1017600:50 1190400:60 1305600:70 1382400:80 1401600:90"
 TLB="75 1382400:80 1747200:85"
 BOOST="0:1305600 4:1305600"
@@ -63,7 +65,7 @@ VFS=100
 GLVL=6
 GFREQ=266666667
 fi
-DT2W=$(cat /tmp/aroma/dt2w.prop | cut -d '=' -f2)
+DT2W=$(cat /tmp/aroma/padon.prop | grep -e "d2w" | cut -d '=' -f2)
 if [ $DT2W == 1 ]; then
 DTP=1
 VIBS=50
@@ -74,14 +76,20 @@ elif [ $DT2W == 3 ]; then
 DTP=0
 VIBS=50
 fi
-DFSC=$(cat /tmp/aroma/dfs.prop | cut -d '=' -f2)
+DFSC=$(cat /tmp/aroma/padon.prop | grep -e "fsync" | cut -d '=' -f2)
 if [ $DFSC == 1 ]; then
 DFS=1
 elif [ $DFSC == 2 ]; then
 DFS=0
 fi
+FC=$(cat /tmp/aroma/padon.prop | grep -e "usbfc" | cut -d '=' -f2)
+if [ $FC = 1 ]; then
+USB=1
+elif [ $FC = 0 ]; then
+USB=0
+fi
 echo "# VARIABLES FOR SH" >> $CONFIGFILE
-echo "# zrammode=$INTERACTIVE" >> $CONFIGFILE
+echo "# zrammode=$PROFILE" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# USER TWEAKS" >> $CONFIGFILE
 echo "service usertweaks /system/bin/sh /system/etc/padon.sh" >> $CONFIGFILE
@@ -100,7 +108,7 @@ echo "# DT2W" >> $CONFIGFILE
 echo "write /sys/android_touch/doubletap2wake " $DTP >> $CONFIGFILE
 echo "write /sys/android_touch/vib_strength " $VIBS >> $CONFIGFILE
 echo "" >> $CONFIGFILE
-COLOR=$(cat /tmp/aroma/color.prop | cut -d '=' -f2)
+COLOR=$(cat /tmp/aroma/padon.prop | grep -e "color" | cut -d '=' -f2)
 echo "# KCAL" >> $CONFIGFILE
 if [ $COLOR == 1 ]; then
 echo "write /sys/devices/platform/kcal_ctrl.0/kcal_sat 269" >> $CONFIGFILE
@@ -113,6 +121,11 @@ echo "write /sys/devices/platform/kcal_ctrl.0/kcal_val 256" >> $CONFIGFILE
 echo "write /sys/devices/platform/kcal_ctrl.0/kcal_cont 256" >> $CONFIGFILE
 echo "write /sys/devices/platform/kcal_ctrl.0/kcal \"254 254 240"\" >> $CONFIGFILE
 elif [ $COLOR == 3 ]; then
+echo "write /sys/devices/platform/kcal_ctrl.0/kcal_sat 270" >> $CONFIGFILE
+echo "write /sys/devices/platform/kcal_ctrl.0/kcal_val 257" >> $CONFIGFILE
+echo "write /sys/devices/platform/kcal_ctrl.0/kcal_cont 265" >> $CONFIGFILE
+echo "write /sys/devices/platform/kcal_ctrl.0/kcal \"256 256 256"\" >> $CONFIGFILE
+elif [ $COLOR == 4 ]; then
 echo "write /sys/devices/platform/kcal_ctrl.0/kcal_sat 255" >> $CONFIGFILE
 echo "write /sys/devices/platform/kcal_ctrl.0/kcal_val 255" >> $CONFIGFILE
 echo "write /sys/devices/platform/kcal_ctrl.0/kcal_cont 255" >> $CONFIGFILE
@@ -120,7 +133,7 @@ echo "write /sys/devices/platform/kcal_ctrl.0/kcal \"256 256 256"\" >> $CONFIGFI
 fi
 echo "" >> $CONFIGFILE
 echo "# CHARGING RATE" >> $CONFIGFILE
-CRATE=$(cat /tmp/aroma/crate.prop | cut -d '=' -f2)
+CRATE=$(cat /tmp/aroma/padon.prop | grep -e "crate" | cut -d '=' -f2)
 if [ $CRATE == 1 ]; then
 CHG=2000
 elif [ $CRATE == 2 ]; then
@@ -132,6 +145,7 @@ echo "chmod 666 /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma" >>
 echo "write /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma $CHG" >> $CONFIGFILE
 echo "write /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma $CHG" >> $CONFIGFILE
 echo "write /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma $CHG" >> $CONFIGFILE
+echo "write /sys/kernel/fast_charge/force_fast_charge $USB" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# DISABLE BCL & CORE CTL" >> $CONFIGFILE
 echo "write /sys/module/msm_thermal/core_control/enabled 0" >> $CONFIGFILE
@@ -188,6 +202,7 @@ echo "write /sys/module/cpu_boost/parameters/input_boost_ms 40" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# SET IO SCHEDULER" >> $CONFIGFILE
 echo "setprop sys.io.scheduler \"fiops\"" >> $CONFIGFILE
+echo "write /sys/block/mmcblk0/queue/read_ahead_kb 512" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# TOUCH BOOST" >> $CONFIGFILE
 echo "write /sys/module/msm_performance/parameters/touchboost $TBST" >> $CONFIGFILE
@@ -201,9 +216,22 @@ echo "" >> $CONFIGFILE
 echo "# FSYNC" >> $CONFIGFILE
 echo "write /sys/module/sync/parameters/fsync_enabled $DFS" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
+echo "# CORE MODE" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/core_ctl/min_cpus 0" >> $CONFIGFILE
+if [ $CMODE == 1 ]; then
+echo "write /sys/devices/system/cpu/cpu4/core_ctl/max_cpus 0" >> $CONFIGFILE
+elif [ $CMODE == 2 ]; then
+echo "write /sys/devices/system/cpu/cpu4/core_ctl/max_cpus 2" >> $CONFIGFILE
+fi
+echo "" >> $CONFIGFILE
+VOLT=$(cat /tmp/aroma/padon.prop | grep -e "uv" | cut -d '=' -f2)
 echo "# CPU & GPU UV" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/GPU_mV_table \"700 720 760 800 860 900 920 980 1020\"" >> $CONFIGFILE
+if [ $VOLT == 1 ]; then
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table \"740 760 820 920 980 1020 1050 1060 1070 780 800 870 910 970 1020 1040\"" >> $CONFIGFILE
+elif [ $VOLT == 2 ]; then
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table \"720 740 800 900 960 1000 1030 1040 1050 760 780 850 890 950 1000 1020 1020\"" >> $CONFIGFILE
+fi
 echo "" >> $CONFIGFILE
 echo "# RUN USERTWEAKS SERVICE" >> $CONFIGFILE
 echo "start usertweaks" >> $CONFIGFILE

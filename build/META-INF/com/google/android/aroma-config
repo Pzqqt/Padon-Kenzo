@@ -1,7 +1,9 @@
 ini_set("rom_name",             "Padon");
 ini_set("rom_version",          "V6.3.10");
+ini_set("rom_author",           "Umang96 & Pzqqt");
 ini_set("rom_device",           "Kenzo");
 ini_set("rom_date",             "2018.03.14");
+# Chinese & English & Modify By Pzqqt
 
 ini_set("force_colorspace","rgba");
 #ini_set("dp","6");
@@ -11,87 +13,147 @@ fontresload( "1", "ttf/Roboto-Regular.ttf", "16" );
 
 theme("default");
 
+setvar("mount_check", resexec("mount_system.sh"));
+
 viewbox(
-    "\nPadon Kernel",
+    "\n<@center>Padon Kernel</@>",
 
     "<@center><b>\n" + ini_get("rom_device") + "</b>\n\n</@>" +
-    "\n\n\n\n  VERSION\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n" +
-    "  RELEASED\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n" +
-    "Press Next to Continue...",
-
-	""
+    "\n\n\n\n  Version \t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n" +
+    "  Author \t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n" +
+    "  Release \t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n" +
+    "Press Next to continue ...",
+    ""
 );
+
+if cmp(getvar("mount_check"),"!=","0") then
+  alert(
+  "Error!",
+  "Failed to mount /system !\nEmmm... Please check...",
+  "@warning",
+  "Abort"
+  );
+  exec("umount", "/system");
+  exit("");
+endif;
+
+if file_getprop("/system/build.prop","ro.build.version.sdk")=="24" then
+  setvar("miui_check", resexec("miui_check.sh"));
+  if cmp(getvar("miui_check"),"!=","0") then
+    ini_set("text_yes", "Take the risk");
+    ini_set("text_no", "Give up");
+    if confirm("Warning!",
+      "Note:\nThis kernel only for<#ff0000> AOSP/LOS base Nougat Rom</#>.\nYou're using MIUI Nougat Rom.\nContinue to flash may have a significant risk.\nDo not feedback when you encounter any bugs.\n\nContinue?\n",
+      "@warning") == "no"
+    then
+      exit("");
+    else
+      ini_set("text_yes", "Yes");
+      ini_set("text_no", "No");
+    endif;
+  else
+    alert(
+      "Error!",
+      "This kernel only for AOSP/LOS base Nougat Rom.\nYou're trying to flash an incompatible kernel.",
+      "@warning",
+      "Abort"
+    );
+    exec("umount", "/system");
+    exit("");
+  endif;
+else
+  if file_getprop("/system/build.prop","ro.build.version.sdk")!="25" then
+    alert(
+      "Error!",
+      "This kernel only for AOSP/LOS base Nougat Rom.\nYou're trying to flash an incompatible kernel.",
+      "@warning",
+      "Abort"
+    );
+    exec("umount", "/system");
+    exit("");
+  endif;
+endif;
 
 alert(
   "NOTICE:",
-  "For best experience -\n\n1.Don't flash over other kernels. Ensure that you either have a previous version of Padon or the kernel that came with your rom.\n\n2.Do not use any scripts to tune cpu governors, this kernel already does that for your cpu.\n\n",
+  "For best experience -\n\nDon't flash over other kernels. Ensure that you either have a previous version of Padon or the kernel that came with your rom.\n\n",
   "@warning",
   "OK"
 );
 
 selectbox(
-  "\n\nWhich selinux mode you want ?","<@center><b>\n\n\n\n\n\n\nPermissive gives more permissions to applications.\nEnforcing restricts some permissions. Choose default if you are not sure.\n</b></@>","","sel.prop",
-  "Default selinux (recommended)","",1,
-  "Enforcing Selinux","",0,
-  "Permissive Selinux","",0
-);
-
-selectbox(
-  "\n\nDo you need dt2w ?","<@center><b>\n\n\n\n\n\n\nRemember !\n\nKeeping dt2w enabled will consume little more battery.\n</b></@>","","dt2w.prop",
-  "Yes, enable it (with vibration)","",0,
-  "Yes, enable it (without vibration)","",0,
-  "No, disable it (saves battery)","",1
-);
-
-selectbox(
-  "\n\nSet your default tuning","<@center><b>\n\n\n\n\n\n\nThis will tune your default kernel settings according to your requirement. Only use interactive governor for maximum results.\n</b></@>","","interactive.prop",
+  "\n\n<@center>Select profile</@>","<@center><b>\n\n\n\n\n\n\nChoose a profile based on your needs.\n</b></@>","","profile.prop",
   "Balanced config","",1,
   "Battery config","",0,
   "Gaming config","",0
 );
 
-selectbox(
-  "\n\n<@center>Select fsync</@>","<@center><b>\n\n\n\n\n\n\nKeeping fsync enabled will give more stability, keep this disabled if you prefer more performance over stability.\n</b></@>","","dfs.prop",
-  "Enable","",1,
-  "Disable","",0
-);
-
-selectbox(
-  "\n\n<@center>Select quick charging support\nWarning ! </@>","<@center><b>\n\n\n\n\n\n\nThis will set your max charging rate limit.\nThis does not affect users with stock charger.\n</b></@>","","crate.prop",
-  "2000 mA (default)","",1,
-  "2400 mA (quick)","",0
-);
-
-selectbox(
-  "\n\nWant enhanced colors ?","<@center><b>\n\n\n\n\n\n\nIf you choose yes then display colors will be tuned. Keep livedisplay off to see real colors.\n</b></@>","","color.prop",
-  "Yes, enhanced colors (warm)","",1,
-  "Yes, enhanced colors (cool)","",0,
-  "No, standard colors","",0
-);
-
-selectbox(
-  "\n\nWant old thermal engine ?","<@center><b>\n\n\n\n\n\n\nIf you have any slow charging issue then only it is recommended to select yes here.\n</b></@>","","thermal.prop",
-  "Yes, old thermal","",0,
-  "No, new thermal","",1
+form(
+	"Padon Config",
+	"Please choose according to your needs:",
+	"@default",
+	"padon.prop",
+	# SELINUX
+	"sel",				"SELinux Mode",					"",												"group",
+		"1",			"Default (recommended)",					"If you are not sure",					"select.selected",
+		"2",			"Enforcing SELinux",					"Restricts some permissions",							"select",
+		"3",			"Permissive SELinux",					"Give more permissions to applications",							"select",
+	# D2W
+	"d2w",				"DT2W",						"",												"group",
+		"1",			"Enable",							"With vibration",								"select",
+		"2",			"Enable",							"Without vibration",							"select",
+		"3",			"Disable",						"Saves battery",									"select.selected",
+	# FSYNC
+	"fsync",			"FSync",						"",									"group",
+		"1",			"Enable",							"More stable",								"select.selected",
+		"2",			"Disable",							"More performance",									"select",
+	# CMODE
+	"cmode",			"Core Mode",						"",												"group",
+		"1",			"Quad-core mode",						"Only enable four SMALL core",	"select",
+		"2",			"Hexa-core mode",						"Six core full open (default)",								"select.selected",
+	# JACK DETECTION
+	"jack",				"New Jack Detection",						"",									"group",
+		"1",			"Enable",							"If you have headset jack issues",								"select",
+		"3",			"Disable",						"",									"select.selected",
+	# UV
+	"uv",				"CPU UV",						"",												"group",
+		"1",			"Default",							"Default",								"select.selected",
+		"2",			"Default - 20mV",					"Decrease by 20mV on the default.\nMay be more saves battery?",		"select",
+	# USB_FAST_CHARGE
+	"usbfc",			"USB Fast Charge",					"",												"group",
+		"1",			"Enable",							"Increase charge current while charging via USB",		"select.selected",
+		"2",			"Disable",							"",												"select",
+	# FAST_CHARGE
+	"crate",			"Fast Charge",						"",												"group",
+		"1",			"2000mA",						"Default",											"select.selected",
+		"2",			"2400mA (fast)",				"BOOM!",										"select",
+	# COLOR
+	"color",			"Enhanced colors",			"",												"group",
+		"1",			"Warm",							"",												"select.selected",
+		"2",			"Cool",							"",												"select",
+		"3",			"Vivid",							"",												"select",
+		"4",			"Standard colors",						"Stock",											"select",
+	# THERMAL
+	"thermal",			"Thermal engine",						"",												"group",
+		"1",			"Switch to old thermal",				"If you have any slow charging issue",						"select",
+		"2",			"Keep default",						"Do not touch my thermal engine files",							"select.selected"
 );
 
 menubox(
-  "\n\n<@center>Padon Installer</@>",
-  "<@center><b>\n\n\n\n\n\nReady to install\n</b></@>",
-  "",
-  "menu.prop",
-  "Install " + ini_get("rom_name") + " " + ini_get("rom_version"),"","@install",
+  "\n\n<@center>Ready to install</@>","<@center><b>\n\n\n\n\n\nPlease confirm\n</b></@>","","menu.prop",
+  "Install "+ini_get("rom_name")+" "+ini_get("rom_version"),"","@install",
   "Abort installation","","@trash"
 );
 
 if prop("menu.prop","selected")=="2"
 then
+  exec("umount", "/system");
   exit("");
 endif;
 
 setvar("retstatus",
 install(
-  "\nInstalling",
+  "<@center>\nInstalling</@>",
   "<@center>\nInstalling Padon Kernel\nPlease wait</@>",
   "")
 );

@@ -15,9 +15,9 @@
  #
  # Please maintain this if you use this script or any part of it
  #
-selinx=$(cat /tmp/aroma/sel.prop | cut -d '=' -f2)
-qc=$(cat /tmp/aroma/crate.prop | cut -d '=' -f2)
-therm=$(cat /tmp/aroma/thermal.prop | cut -d '=' -f2)
+selinx=$(cat /tmp/aroma/padon.prop | grep -e "sel" | cut -d '=' -f2)
+qc=$(cat /tmp/aroma/padon.prop | grep -e "crate" | cut -d '=' -f2)
+therm=$(cat /tmp/aroma/padon.prop | grep -e "thermal" | cut -d '=' -f2)
 nos1=`cat /system/build.prop | grep ro.product.name=`
 nos2=${nos1:16:8}
 if [ $nos2 == "nitrogen" ]; then
@@ -36,6 +36,9 @@ cmd=$cmd" androidboot.selinux=enforcing"
 elif [ $selinx -eq 3 ]; then
 cmd=$cmd" androidboot.selinux=permissive"
 fi
+if [ $jk -eq 2 ]; then
+cmd=$cmd" android.audiojackmode=stock"
+fi
 if [ $therm -eq 1 ]; then
 echo "Using old thermal engine"
 cp -rf /tmp/old-thermal/* /system/vendor/
@@ -44,19 +47,28 @@ chmod 0644 /system/vendor/lib/libthermalclient.so
 chmod 0644 /system/vendor/lib64/libthermalclient.so
 chmod 0644 /system/vendor/lib64/libthermalioctl.so
 fi
+if ! [ -f /system/etc/padon.sh ]; then
 cp /tmp/padon.sh /system/etc/padon.sh
+fi
+rm -rf /system/etc/radon.sh
 chmod 644 /system/etc/padon.sh
 cp -f /tmp/cpio /sbin/cpio
 cd /tmp/
 /sbin/busybox dd if=/dev/block/bootdevice/by-name/boot of=./boot.img
 ./unpackbootimg -i /tmp/boot.img
+if [ $(cat /tmp/boot.img-cmdline | grep -c "snd-soc-msm8x16-wcd.dig_core_collapse_enable=0") = 1 ];then
+# Found Shox Audio Mod cmdline, add it
+cmd=$cmd" snd-soc-msm8x16-wcd.dig_core_collapse_enable=0"
+fi
 mkdir /tmp/ramdisk
 cp /tmp/boot.img-ramdisk.gz /tmp/ramdisk/
 cd /tmp/ramdisk/
 gunzip -c /tmp/ramdisk/boot.img-ramdisk.gz | /tmp/cpio -i
 rm /tmp/ramdisk/boot.img-ramdisk.gz
 rm /tmp/boot.img-ramdisk.gz
-cp /tmp/init.radon.rc /tmp/ramdisk/
+cp /tmp/init.padon.rc /tmp/ramdisk/
+rm -rf /tmp/ramdisk/init.spectrum.rc
+rm -rf /tmp/ramdisk/init.spectrum.sh
 # COMPATIBILITY FIXES START
 cp /tmp/init.qcom.post_boot.sh /system/etc/init.qcom.post_boot.sh
 cp /tmp/gxfingerprint.default.so /system/lib64/hw/gxfingerprint.default.so
@@ -65,10 +77,14 @@ if [ $(grep -c "lazytime" fstab.qcom) -ne 0 ]; then
 cp /tmp/fstab.qcom /tmp/ramdisk/
 chmod 640 /tmp/ramdisk/fstab.qcom
 fi
-if [ -f /tmp/ramdisk/init.darkness.rc ]; then
-rm /tmp/ramdisk/init.darkness.rc
-fi
 # COMPATIBILITY FIXES END
+# CLEAN RAMDISK
+rm -rf /tmp/ramdisk/init.darkness.rc
+rm -rf /tmp/ramdisk/init.radon.rc
+sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.rc
+sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.qcom.rc
+# CLEAN END
+sed -i '/^import \/init\.spectrum\.rc/d' /tmp/ramdisk/init.rc
 chmod 0750 /tmp/ramdisk/init.padon.rc
 if [ $(grep -c "import /init.padon.rc" /tmp/ramdisk/init.rc) == 0 ]; then
    sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.padon.rc" /tmp/ramdisk/init.rc
