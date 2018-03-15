@@ -383,7 +383,15 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
 		   -mcpu=cortex-a57.cortex-a53 -mtune=cortex-a57.cortex-a53 \
-		   -std=gnu89
+		   -Wno-deprecated-declarations \
+		   -Wno-misleading-indentation \
+		   -Wno-unused-const-variable \
+		   -Wno-shift-overflow \
+		   -Wno-bool-compare \
+		   -Wno-memset-transposed-args \
+		   -Wno-discarded-array-qualifiers -std=gnu89 \
+		   -Wno-tautological-compare -Wno-array-bounds \
+		   -Wno-nonnull
 
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
