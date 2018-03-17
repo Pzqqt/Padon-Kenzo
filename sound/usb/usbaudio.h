@@ -40,7 +40,6 @@ struct snd_usb_audio {
 	struct rw_semaphore shutdown_rwsem;
 	unsigned int shutdown:1;
 	unsigned int probing:1;
-	unsigned int in_pm:1;
 	unsigned int autosuspended:1;	
 	unsigned int txfr_quirk:1; /* Subframe boundaries on transfers */
 	
