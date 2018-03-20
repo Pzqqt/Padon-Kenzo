@@ -57,7 +57,7 @@ cp -f /tmp/cpio /sbin/cpio
 cd /tmp/
 /sbin/busybox dd if=/dev/block/bootdevice/by-name/boot of=./boot.img
 ./unpackbootimg -i /tmp/boot.img
-if [ $(cat /tmp/boot.img-cmdline | grep -c "snd-soc-msm8x16-wcd.dig_core_collapse_enable=0") = 1 ];then
+if [ $(cat /tmp/boot.img-cmdline | grep -c "snd-soc-msm8x16-wcd.dig_core_collapse_enable=0") -ne 0 ];then
 # Found Shox Audio Mod cmdline, add it
 cmd=$cmd" snd-soc-msm8x16-wcd.dig_core_collapse_enable=0"
 fi
@@ -84,8 +84,9 @@ rm -rf /tmp/ramdisk/init.darkness.rc
 rm -rf /tmp/ramdisk/init.radon.rc
 sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.rc
 sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.qcom.rc
-# CLEAN END
+sed -i '/^import \/init\.padon\.rc/d' /tmp/ramdisk/init.qcom.rc
 sed -i '/^import \/init\.spectrum\.rc/d' /tmp/ramdisk/init.rc
+# CLEAN END
 chmod 0750 /tmp/ramdisk/init.padon.rc
 if [ $(grep -c "import /init.padon.rc" /tmp/ramdisk/init.rc) == 0 ]; then
    sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.padon.rc" /tmp/ramdisk/init.rc
