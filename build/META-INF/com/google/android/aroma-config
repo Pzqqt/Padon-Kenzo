@@ -55,6 +55,12 @@ alert(
 );
 
 selectbox(
+  "\n\n<@center>Choose a schedule</@>","<@center><b>\n\n\n\n\n\n\nChoose what you like.\nIf you do not understand,\nI suggest you use the Radon schedule.\n</b></@>","","ros.prop",
+  "Stock Radon schedule (Default)","",1,
+  "Stock Shadow schedule","",0
+);
+
+selectbox(
   "\n\n<@center>Select profile</@>","<@center><b>\n\n\n\n\n\n\nChoose a profile based on your needs.\n</b></@>","","profile.prop",
   "Balanced config","",1,
   "Battery config","",0,
