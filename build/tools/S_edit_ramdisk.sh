@@ -5,46 +5,59 @@ CONFIGFILE="/tmp/init.padon.rc"
 PROFILE=$(cat /tmp/aroma/profile.prop | cut -d '=' -f2)
 CMODE=$(cat /tmp/aroma/padon.prop | grep -e "cmode" | cut -d '=' -f2)
 if [ $PROFILE == 1 ]; then
+GOV="interactive"
 TLS="50 1017600:60 1190400:70 1305600:80 1382400:90 1401600:95"
 TLB="85 1382400:90 1747200:95"
-BOOST="0:1305600 4:1113600"
+BOOST="0"
 HSFS=1440000
 HSFB=1382400
-FMS=691200
-FMB=883200
+FMS=400000
+FMB=400000
 FMAS=1440000
 FMAB=1843200
 TR=20000
 AID=N
 ABST=0
-TBST=1
+TBST=0
 GHLS=100
 GHLB=90
-SWAP=30
+AHDS=0
+AHDB="19000 1382400:39000"
+SWAP=40
 VFS=100
-GLVL=6
-GFREQ=266666667
+GLVL=7
+GFREQ=200000000
+GMAXFREQ=600000000
+TEMPTT=65
+TEMPTL=45
 elif [ $PROFILE == 2 ]; then
-TLS="75 1017600:85 1190400:95"
-TLB="90 1305600:95"
+GOV="cultivation"
+TLS="60 400000:25 691200:40 1017600:55 1190400:85 1305600:99"
+TLB="90"
 BOOST="0"
 HSFS=1305600
-HSFB=1612600
-FMS=691200
-FMB=883200
+HSFB=1056000
+FMS=400000
+FMB=400000
 FMAS=1305600
-FMAB=1612600
+FMAB=1305600
 TR=40000
 AID=Y
 ABST=0
 TBST=0
-GHLS=100
-GHLB=100
+GHLS=99
+GHLB=99
+AHDS="30000"
+AHDB="25000"
 SWAP=20
 VFS=40
-GLVL=7
-GFREQ=200000000
+GLVL=8
+GFREQ=133333333
+GMAXFREQ=432000000
+TEMPTT=60
+TEMPTL=40
 elif [ $PROFILE == 3 ]; then
+GOV="interactive"
 TLS="40 1017600:50 1190400:60 1305600:70 1382400:80 1401600:90"
 TLB="75 1382400:80 1747200:85"
 BOOST="0:1305600 4:1305600"
@@ -60,10 +73,15 @@ ABST=1
 TBST=1
 GHLS=95
 GHLB=80
-SWAP=40
+AHDS="25000"
+AHDB="15000 1382400:25000"
+SWAP=60
 VFS=100
 GLVL=6
 GFREQ=266666667
+GMAXFREQ=600000000
+TEMPTT=70
+TEMPTL=50
 fi
 DT2W=$(cat /tmp/aroma/padon.prop | grep -e "d2w" | cut -d '=' -f2)
 if [ $DT2W == 1 ]; then
@@ -167,46 +185,101 @@ echo "write /sys/devices/system/cpu/cpu5/online 1" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# TWEAK A53 CLUSTER GOVERNOR" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/online 1" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor \"interactive\"" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor \"$GOV\"" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq $FMS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq $FMAS" >> $CONFIGFILE
+if [ $PROFILE == 2 ]; then
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/above_hispeed_delay $AHDS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/go_hispeed_load $GHLS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/timer_rate $TR" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/hispeed_freq $HSFS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/target_loads $TLS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/min_sample_time 45000" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/max_freq_hysteresis 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/timer_slack -1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/powersave_bias 1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/fastlane 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/cultivation/align_windows 1" >> $CONFIGFILE
+else
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay $AHDS" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load $GHLS" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate $TR" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq $HSFS" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy 0" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads \"$TLS\"" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time 40000" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq $FMS" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq $FMAS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/boost 0" >> $CONFIGFILE
+if [ $PROFILE == 1 ]; then
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_migration_notif 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_sched_load 0" >> $CONFIGFILE
+elif [ $PROFILE == 3 ]; then
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_migration_notif 1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_sched_load 1" >> $CONFIGFILE
+fi
+fi
 echo "" >> $CONFIGFILE
 echo "# TWEAK A72 CLUSTER GOVERNOR" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/online 1" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor \"interactive\"" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay \"19000 1382400:39000\"" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor \"$GOV\"" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq $FMB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq $FMAB" >> $CONFIGFILE
+if [ $PROFILE == 2 ]; then
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/above_hispeed_delay $AHDB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/go_hispeed_load $GHLB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/timer_rate $TR" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/hispeed_freq $HSFB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/target_loads $TLB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/min_sample_time 30000" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/max_freq_hysteresis 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/timer_slack -1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/powersave_bias 1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/fastlane 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/align_windows 1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/cultivation/use_sched_load 0" >> $CONFIGFILE
+else
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay $AHDB" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load $GHLB" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_rate $TR" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq $HSFB" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy 0" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads \"$TLB\"" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time 40000" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq $FMB" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq $FMAB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/boost 0" >> $CONFIGFILE
+if [ $PROFILE == 1 ]; then
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/use_migration_notif 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/use_sched_load 0" >> $CONFIGFILE
+elif [ $PROFILE == 3 ]; then
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/use_migration_notif 1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/use_sched_load 1" >> $CONFIGFILE
+fi
+fi
+echo "" >> $CONFIGFILE
+echo "# ENABLE BCL & CORE CTL" >> $CONFIGFILE
+echo "write /sys/module/msm_thermal/core_control/enabled 0">> $CONFIGFILE
+echo "write /sys/devices/soc.0/qcom,bcl.56/mode disable" >> $CONFIGFILE
+echo "write /sys/devices/soc.0/qcom,bcl.56/hotplug_mask 48" >> $CONFIGFILE
+echo "write /sys/devices/soc.0/qcom,bcl.56/hotplug_soc_mask 32" >> $CONFIGFILE
+echo "write /sys/devices/soc.0/qcom,bcl.56/mode enable" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# GPU SETTINGS" >> $CONFIGFILE
 echo "write /sys/devices/soc.0/1c00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/default_pwrlevel $GLVL" >> $CONFIGFILE
 echo "write /sys/devices/soc.0/1c00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel $GLVL" >> $CONFIGFILE
 echo "write /sys/devices/soc.0/1c00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/devfreq/min_freq $GFREQ" >> $CONFIGFILE
+echo "write /sys/class/kgsl/kgsl-3d0/max_gpuclk $GMAXFREQ" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# CPU BOOST PARAMETERS" >> $CONFIGFILE
 echo "write /sys/module/cpu_boost/parameters/input_boost_freq \"$BOOST\"" >> $CONFIGFILE
-echo "write /sys/module/cpu_boost/parameters/input_boost_ms 40" >> $CONFIGFILE
+echo "write /sys/module/cpu_boost/parameters/input_boost_ms 55" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# SET IO SCHEDULER" >> $CONFIGFILE
 if [ $PROFILE == 1 ]; then
-echo "setprop sys.io.scheduler \"maple\"" >> $CONFIGFILE
-else
+echo "setprop sys.io.scheduler \"zen\"" >> $CONFIGFILE
+elif [ $PROFILE == 2 ]; then
+echo "setprop sys.io.scheduler \"fiops\"" >> $CONFIGFILE
+elif [ $PROFILE == 3 ]; then
 echo "setprop sys.io.scheduler \"fiops\"" >> $CONFIGFILE
 fi
-echo "write /sys/block/mmcblk0/queue/read_ahead_kb 512" >> $CONFIGFILE
+echo "write /sys/block/mmcblk0/queue/read_ahead_kb 256" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# TOUCH BOOST" >> $CONFIGFILE
 echo "write /sys/module/msm_performance/parameters/touchboost $TBST" >> $CONFIGFILE
@@ -219,6 +292,19 @@ echo "write /sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost $ABST" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# FSYNC" >> $CONFIGFILE
 echo "write /sys/module/sync/parameters/fsync_enabled $DFS" >> $CONFIGFILE
+# echo "" >> $CONFIGFILE
+# echo "write /sys/module/mdss_fb/parameters/backlight_dimmer y" >> $CONFIGFILE
+# echo "write /sys/block/mmcblk0/queue/iostats 0" >> $CONFIGFILE
+# echo "write /sys/block/mmcblk1/queue/iostats 0" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
+echo "# THERMAL SETTINGS" >> $CONFIGFILE
+echo "write /sys/module/msm_thermal/parameters/enabled y" >> $CONFIGFILE
+echo "write /sys/module/msm_thermal/parameters/temp_threshold $TEMPTL" >> $CONFIGFILE
+echo "write /sys/module/msm_thermal/parameters/core_limit_temp_degC $TEMPTT" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
+echo "# KSM" >> $CONFIGFILE
+echo "write /sys/kernel/mm/ksm/run 0" >> $CONFIGFILE
+echo "write /sys/kernel/mm/ksm/run_charging 0" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# CORE MODE" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/core_ctl/min_cpus 0" >> $CONFIGFILE
@@ -227,6 +313,32 @@ echo "write /sys/devices/system/cpu/cpu4/core_ctl/max_cpus 0" >> $CONFIGFILE
 elif [ $CMODE == 2 ]; then
 echo "write /sys/devices/system/cpu/cpu4/core_ctl/max_cpus 2" >> $CONFIGFILE
 fi
+echo "" >> $CONFIGFILE
+echo "# CPU SCHEDULER" >> $CONFIGFILE
+echo "chmod 755 /proc/sys/kernel/sched_boost" >> $CONFIGFILE
+echo "write /proc/sys/kernel/sched_boost 0" >> $CONFIGFILE
+echo "write /proc/sys/kernel/sched_freq_inc_notify 400000" >> $CONFIGFILE
+echo "write /proc/sys/kernel/sched_freq_dec_notify 400000" >> $CONFIGFILE
+echo "write /proc/sys/kernel/sched_wake_to_idle 0" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
+echo "# SHADOW SCHEDULING" >> $CONFIGFILE
+echo "chmod 755 /proc/sys/kernel/sched_use_shadow_scheduling" >> $CONFIGFILE
+echo "write /proc/sys/kernel/sched_use_shadow_scheduling 1" >> $CONFIGFILE
+echo "write /proc/sys/kernel/sched_shadow_downmigrate 80" >> $CONFIGFILE
+echo "write /proc/sys/kernel/sched_shadow_upmigrate 85" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
+echo "# DCVS" >> $CONFIGFILE
+echo "write /sys/class/devfreq/cpubw/governor \"bw_hwmon\"" >> $CONFIGFILE
+echo "write /sys/class/devfreq/cpubw/bw_hwmon/io_percent 34" >> $CONFIGFILE
+echo "write /sys/class/devfreq/cpubw/bw_hwmon/guard_band_mbps 100" >> $CONFIGFILE
+echo "write /sys/class/devfreq/qcom,memlat-cpu0.51/polling_interval 10" >> $CONFIGFILE
+echo "write /sys/class/devfreq/qcom,memlat-cpu4.52/polling_interval 10" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
+echo "# FP BOOST" >> $CONFIGFILE
+echo "write /sys/kernel/fp_boost/enabled 1" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
+echo "# POWERSUSPEND" >> $CONFIGFILE
+echo "write /sys/kernel/power_suspend/power_suspend_mode 3" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 VOLT=$(cat /tmp/aroma/padon.prop | grep -e "uv" | cut -d '=' -f2)
 echo "# CPU & GPU UV" >> $CONFIGFILE

@@ -19,6 +19,7 @@ selinx=$(cat /tmp/aroma/padon.prop | grep -e "sel" | cut -d '=' -f2)
 qc=$(cat /tmp/aroma/padon.prop | grep -e "crate" | cut -d '=' -f2)
 therm=$(cat /tmp/aroma/padon.prop | grep -e "thermal" | cut -d '=' -f2)
 jk=$(cat /tmp/aroma/padon.prop | grep -e "jack" | cut -d '=' -f2)
+ros=$(cat /tmp/aroma/ros.prop | cut -d '=' -f2)
 nos1=`cat /system/build.prop | grep ro.product.name=`
 nos2=${nos1:16:8}
 if [ $nos2 == "nitrogen" ]; then
@@ -68,8 +69,6 @@ gunzip -c /tmp/ramdisk/boot.img-ramdisk.gz | /tmp/cpio -i
 rm /tmp/ramdisk/boot.img-ramdisk.gz
 rm /tmp/boot.img-ramdisk.gz
 cp /tmp/init.padon.rc /tmp/ramdisk/
-rm -rf /tmp/ramdisk/init.spectrum.rc
-rm -rf /tmp/ramdisk/init.spectrum.sh
 # COMPATIBILITY FIXES START
 cp /tmp/init.qcom.post_boot.sh /system/etc/init.qcom.post_boot.sh
 cp /tmp/gxfingerprint.default.so /system/lib64/hw/gxfingerprint.default.so
@@ -85,11 +84,23 @@ rm -rf /tmp/ramdisk/init.radon.rc
 sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.rc
 sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.qcom.rc
 sed -i '/^import \/init\.padon\.rc/d' /tmp/ramdisk/init.qcom.rc
-sed -i '/^import \/init\.spectrum\.rc/d' /tmp/ramdisk/init.rc
 # CLEAN END
+rm -rf /tmp/ramdisk/init.spectrum.rc
+rm -rf /tmp/ramdisk/init.spectrum.sh
+if [ $ros -eq 2 ]; then
+mv /tmp/S_init.spectrum.rc /tmp/ramdisk/init.spectrum.rc
+mv /tmp/init.spectrum.sh /tmp/ramdisk/init.spectrum.sh
+chmod 0750 /tmp/ramdisk/init.spectrum.rc
+chmod 0750 /tmp/ramdisk/init.spectrum.sh
+if [ $(grep -c "import /init.spectrum.rc" /tmp/ramdisk/init.rc) == 0 ]; then
+    sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.spectrum.rc" /tmp/ramdisk/init.rc
+fi
+else
+sed -i '/^import \/init\.spectrum\.rc/d' /tmp/ramdisk/init.rc
+fi
 chmod 0750 /tmp/ramdisk/init.padon.rc
 if [ $(grep -c "import /init.padon.rc" /tmp/ramdisk/init.rc) == 0 ]; then
-   sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.padon.rc" /tmp/ramdisk/init.rc
+    sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.padon.rc" /tmp/ramdisk/init.rc
 fi
 find . | cpio -o -H newc | gzip > /tmp/boot.img-ramdisk.gz
 rm -r /tmp/ramdisk
