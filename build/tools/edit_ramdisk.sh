@@ -201,7 +201,11 @@ echo "write /sys/module/cpu_boost/parameters/input_boost_freq \"$BOOST\"" >> $CO
 echo "write /sys/module/cpu_boost/parameters/input_boost_ms 40" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# SET IO SCHEDULER" >> $CONFIGFILE
+if [ $PROFILE == 1 ]; then
+echo "setprop sys.io.scheduler \"maple\"" >> $CONFIGFILE
+else
 echo "setprop sys.io.scheduler \"fiops\"" >> $CONFIGFILE
+fi
 echo "write /sys/block/mmcblk0/queue/read_ahead_kb 512" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# TOUCH BOOST" >> $CONFIGFILE
