@@ -62,6 +62,8 @@ setvar("pk_d2w_s21",      "Enable");
 setvar("pk_d2w_s22",      "Without vibration");
 setvar("pk_d2w_s31",      "Disable");
 setvar("pk_d2w_s32",      "Saves battery");
+setvar("pk_d2w_s41",      "Undefined");
+setvar("pk_d2w_s42",      "Make sure no conflict with Rom's own d2w switch");
 setvar("pk_fsync",        "FSync");
 setvar("pk_fsync_s11",    "Enable");
 setvar("pk_fsync_s12",    "More stable");
@@ -171,6 +173,8 @@ setvar("pk_d2w_s21",      "启用");
 setvar("pk_d2w_s22",      "唤醒时没有震动反馈");
 setvar("pk_d2w_s31",      "不启用");
 setvar("pk_d2w_s32",      "可以更加省电");
+setvar("pk_d2w_s41",      "不定义");
+setvar("pk_d2w_s42",      "确保与 Rom 自带的双击唤醒开关不冲突");
 setvar("pk_fsync",        "FSync");
 setvar("pk_fsync_s11",    "启用");
 setvar("pk_fsync_s12",    "可以提高稳定性");
@@ -305,6 +309,7 @@ form(
 		"1",			getvar("pk_d2w_s11"),					getvar("pk_d2w_s12"),							"select",
 		"2",			getvar("pk_d2w_s21"),					getvar("pk_d2w_s22"),							"select",
 		"3",			getvar("pk_d2w_s31"),					getvar("pk_d2w_s32"),							"select",
+		"4",			getvar("pk_d2w_s41"),					getvar("pk_d2w_s42"),							"select.selected",
 	# FSYNC
 	"fsync",			getvar("pk_fsync"),						"",												"group",
 		"1",			getvar("pk_fsync_s11"),					getvar("pk_fsync_s12"),							"select.selected",
