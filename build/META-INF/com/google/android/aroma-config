@@ -15,23 +15,246 @@ theme("default");
 
 setvar("mount_check", resexec("mount_system.sh"));
 
-viewbox(
-    "\n<@center>Padon Kernel</@>",
+menubox(
+  "\n<@center>Select Language</@>","<@center><b>\n选择安装器语言\n\n\n\n</b></@>","","lang.prop",
+  "English","","",
+  "中文 (简体)","",""
+);
 
-    "<@center><b>\n" + ini_get("rom_device") + "</b>\n\n</@>" +
-    "\n\n\n\n  Version \t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n" +
-    "  Author \t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n" +
-    "  Release \t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n" +
-    "Press Next to continue ...",
+if prop("lang.prop","selected")=="1"
+then
+loadlang("langs/en.lang");
+setvar("pk_name",         "Padon Kernel");
+setvar("pk_version",      "Version");
+setvar("pk_author",       "Author\t");
+setvar("pk_release",      "Release");
+setvar("pk_press_next",   "Press Next to continue ...");
+setvar("pk_error",        "Error!");
+setvar("pk_failed_mount", "Failed to mount /system !\nHmm... Please check...");
+setvar("pk_abort",        "Abort");
+setvar("pk_warning",      "Warning!");
+setvar("pk_failed_sdk",   "This kernel only for AOSP/LOS base Oreo Rom.\nYou're trying to flash an incompatible kernel.");
+setvar("pk_notice",       "Notice");
+setvar("pk_notice_text",  "For best experience -\n\nDon't flash over other kernels. Ensure that you either have a previous version of Padon or the kernel that came with your rom.\n\n");
+setvar("pk_ok",           "OK");
+setvar("pk_ros",          "Choose a schedule");
+setvar("pk_ros_1",        "Choose what you like.\nIf you do not understand,\nI suggest you use the Radon schedule.");
+setvar("pk_ros_s1",       "Stock Radon schedule (Default)");
+setvar("pk_ros_s2",       "Stock Shadow schedule");
+setvar("pk_profile",      "Select profile");
+setvar("pk_profile_1",    "Choose a profile based on your needs.");
+setvar("pk_profile_s1",   "Balanced config");
+setvar("pk_profile_s2",   "Battery config");
+setvar("pk_profile_s3",   "Gaming config");
+setvar("pk_config",       "Padon Config");
+setvar("pk_config_1",     "Please choose according to your needs:");
+setvar("pk_sel",          "SELinux Mode");
+setvar("pk_sel_s11",      "Permissive SELinux");
+setvar("pk_sel_s12",      "Force Permissive");
+setvar("pk_sel_s21",      "Permissive SELinux");
+setvar("pk_sel_s22",      "Force Permissive");
+setvar("pk_sel_s31",      "Permissive SELinux");
+setvar("pk_sel_s32",      "Force Permissive");
+setvar("pk_d2w",          "DT2W");
+setvar("pk_d2w_s11",      "Enable");
+setvar("pk_d2w_s12",      "With vibration");
+setvar("pk_d2w_s21",      "Enable");
+setvar("pk_d2w_s22",      "Without vibration");
+setvar("pk_d2w_s31",      "Disable");
+setvar("pk_d2w_s32",      "Saves battery");
+setvar("pk_fsync",        "FSync");
+setvar("pk_fsync_s11",    "Enable");
+setvar("pk_fsync_s12",    "More stable");
+setvar("pk_fsync_s21",    "Disable");
+setvar("pk_fsync_s22",    "More performance");
+setvar("pk_netmode",      "Netlink Mode");
+setvar("pk_netmode_s11",  "OLD Mode");
+setvar("pk_netmode_s12",  "For NOS, ABC and MCAOSP");
+setvar("pk_netmode_s21",  "LOS Mode");
+setvar("pk_netmode_s22",  "For Cardinal and PE");
+setvar("pk_cmode",        "Core Mode");
+setvar("pk_cmode_s11",    "Quad-core mode");
+setvar("pk_cmode_s12",    "Only enable four SMALL core");
+setvar("pk_cmode_s21",    "Hexa-core mode");
+setvar("pk_cmode_s22",    "Six core full open (default)");
+setvar("pk_jack",         "New Jack Detection");
+setvar("pk_jack_s11",     "Enable");
+setvar("pk_jack_s12",     "If you have headset jack issues");
+setvar("pk_jack_s21",     "Disable");
+setvar("pk_jack_s22",     "");
+setvar("pk_uv",           "CPU UV");
+setvar("pk_uv_s11",       "Default");
+setvar("pk_uv_s12",       "Default");
+setvar("pk_uv_s21",       "Default - 20mV");
+setvar("pk_uv_s22",       "Decrease by 20mV on the default.\nMay be more saves battery?");
+setvar("pk_usbfc",        "USB Fast Charge");
+setvar("pk_usbfc_s11",    "Enable");
+setvar("pk_usbfc_s12",    "Increase charge current while charging via USB");
+setvar("pk_usbfc_s21",    "Disable");
+setvar("pk_usbfc_s22",    "");
+setvar("pk_crate",        "Fast Charge");
+setvar("pk_crate_s11",    "2000mA");
+setvar("pk_crate_s12",    "Default");
+setvar("pk_crate_s21",    "2400mA (fast)");
+setvar("pk_crate_s22",    "BOOM!");
+setvar("pk_color",        "Enhanced colors");
+setvar("pk_color_s11",    "Warm");
+setvar("pk_color_s12",    "");
+setvar("pk_color_s21",    "Cool");
+setvar("pk_color_s22",    "");
+setvar("pk_color_s31",    "Vivid");
+setvar("pk_color_s32",    "");
+setvar("pk_color_s41",    "Standard colors");
+setvar("pk_color_s42",    "Stock");
+setvar("pk_thermal",      "Thermal engine");
+setvar("pk_thermal_s11",  "Switch to old thermal");
+setvar("pk_thermal_s12",  "If you have any slow charging issue");
+setvar("pk_thermal_s21",  "Keep default");
+setvar("pk_thermal_s22",  "Do not touch my thermal engine files");
+setvar("pk_ready",        "Ready to install");
+setvar("pk_ready_1",      "Please confirm");
+setvar("pk_ready_s1",     "Install ");
+setvar("pk_ready_s2",     "Abort installation");
+setvar("pk_installing",   "Installing");
+setvar("pk_installing_1", "Installing Padon Kernel\nPlease wait");
+setvar("pk_ins_finish",   "Installation Completed");
+setvar("pk_ins_finish_1", "Congratulations!");
+setvar("pk_ins_finish_2", " has been installed into your device.");
+setvar("pk_reboot",       "Reboot your device now.");
+setvar("pk_ins_failed",   "Installation Failed");
+setvar("pk_exit_code",    "Installer Status: ");
+setvar("pk_finish",       "Finish");
+setvar("pk_text_yes",     "Take the risk");
+setvar("pk_text_yes_s",   "Yes");
+setvar("pk_text_no",      "Give up");
+setvar("pk_text_no_s",    "No");
+endif;
+
+if prop("lang.prop","selected")=="2"
+then
+loadlang("langs/cn.lang");
+setvar("pk_name",         "Padon 内核");
+setvar("pk_version",      "版本");
+setvar("pk_author",       "作者");
+setvar("pk_release",      "发布");
+setvar("pk_press_next",   "点击下一步继续...");
+setvar("pk_error",        "错误！");
+setvar("pk_failed_mount", "挂载 system 分区失败!\nEmmm...检查一下问题吧...");
+setvar("pk_abort",        "好吧");
+setvar("pk_warning",      "警告");
+setvar("pk_failed_sdk",   "此内核卡刷包只适用于基于 8.1 的类原生 Rom,\n老哥你刷错了吧...");
+setvar("pk_notice",       "注意");
+setvar("pk_notice_text",  "为了获得最佳体验,\n\n请不要在其他的第三方内核上刷入此内核.\n刷入前请确保你使用的是旧版本的 Padon 内核或自带的内核.\n\n");
+setvar("pk_ok",           "好的");
+setvar("pk_ros",          "选择调度方案");
+setvar("pk_ros_1",        "选择你喜欢的内核调度方案.\n如果你不了解或没用过这两个内核的话,\n我还是建议你使用 Radon 的调度.");
+setvar("pk_ros_s1",       "原版 Radon 内核调度方案 (默认)");
+setvar("pk_ros_s2",       "原版 Shadow 内核调度方案");
+setvar("pk_profile",      "选择默认的性能配置");
+setvar("pk_profile_1",    "根据你的要求调整内核配置.");
+setvar("pk_profile_s1",   "平衡配置");
+setvar("pk_profile_s2",   "省电配置 (性能↓ ,续航↑)");
+setvar("pk_profile_s3",   "性能配置 (性能↑ ,续航↓)");
+setvar("pk_config",       "Padon 配置");
+setvar("pk_config_1",     "请根据你的需求选择：");
+setvar("pk_sel",          "SELinux 模式");
+setvar("pk_sel_s11",      "许可 SELinux");
+setvar("pk_sel_s12",      "此版本强制许可 SELinux");
+setvar("pk_sel_s21",      "许可 SELinux");
+setvar("pk_sel_s22",      "此版本强制许可 SELinux");
+setvar("pk_sel_s31",      "许可 SELinux");
+setvar("pk_sel_s32",      "此版本强制许可 SELinux");
+setvar("pk_d2w",          "双击唤醒");
+setvar("pk_d2w_s11",      "启用");
+setvar("pk_d2w_s12",      "唤醒时有震动反馈");
+setvar("pk_d2w_s21",      "启用");
+setvar("pk_d2w_s22",      "唤醒时没有震动反馈");
+setvar("pk_d2w_s31",      "不启用");
+setvar("pk_d2w_s32",      "可以更加省电");
+setvar("pk_fsync",        "FSync");
+setvar("pk_fsync_s11",    "启用");
+setvar("pk_fsync_s12",    "可以提高稳定性");
+setvar("pk_fsync_s21",    "禁用");
+setvar("pk_fsync_s22",    "可以提升性能");
+setvar("pk_netmode",      "Netlink 模式 (决定goodix指纹是否可用)");
+setvar("pk_netmode_s11",  "旧模式");
+setvar("pk_netmode_s12",  "用于 NOS, ABC & MCAOSP");
+setvar("pk_netmode_s21",  "LOS 模式");
+setvar("pk_netmode_s22",  "用于 Cardinal & PE");
+setvar("pk_cmode",        "核心模式");
+setvar("pk_cmode_s11",    "四核模式");
+setvar("pk_cmode_s12",    "只启用四个小核心,可以更加省电,但会限制性能");
+setvar("pk_cmode_s21",    "六核模式");
+setvar("pk_cmode_s22",    "六核全开 (默认)");
+setvar("pk_jack",         "新的插孔检测");
+setvar("pk_jack_s11",     "启用");
+setvar("pk_jack_s12",     "如果你发现耳机插孔有问题的话");
+setvar("pk_jack_s21",     "禁用");
+setvar("pk_jack_s22",     "");
+setvar("pk_uv",           "CPU 电压调整");
+setvar("pk_uv_s11",       "默认");
+setvar("pk_uv_s12",       "默认的电压配置");
+setvar("pk_uv_s21",       "降低 20mV");
+setvar("pk_uv_s22",       "在默认的基础上降低 20mV,或许可以更加省电");
+setvar("pk_usbfc",        "USB 快速充电");
+setvar("pk_usbfc_s11",    "启用");
+setvar("pk_usbfc_s12",    "连接到 USB 接口充电时,显著提升充电电流");
+setvar("pk_usbfc_s21",    "禁用");
+setvar("pk_usbfc_s22",    "");
+setvar("pk_crate",        "快充");
+setvar("pk_crate_s11",    "2000mA");
+setvar("pk_crate_s12",    "默认");
+setvar("pk_crate_s21",    "2400mA (快充)");
+setvar("pk_crate_s22",    "BOOM!");
+setvar("pk_color",        "颜色增强");
+setvar("pk_color_s11",    "暖色");
+setvar("pk_color_s12",    "");
+setvar("pk_color_s21",    "冷色");
+setvar("pk_color_s22",    "");
+setvar("pk_color_s31",    "生动");
+setvar("pk_color_s32",    "");
+setvar("pk_color_s41",    "标准颜色");
+setvar("pk_color_s42",    "原色");
+setvar("pk_thermal",      "温控引擎");
+setvar("pk_thermal_s11",  "换回旧的温控引擎");
+setvar("pk_thermal_s12",  "如果你感觉充电太慢的话");
+setvar("pk_thermal_s21",  "保持默认");
+setvar("pk_thermal_s22",  "不改动现有的温控文件");
+setvar("pk_ready",        "即将准备安装");
+setvar("pk_ready_1",      "请确认你的选择");
+setvar("pk_ready_s1",     "确认安装 ");
+setvar("pk_ready_s2",     "终止安装程序");
+setvar("pk_installing",   "正在安装");
+setvar("pk_installing_1", "正在安装 Padon 内核\n请稍候");
+setvar("pk_ins_finish",   "安装完成");
+setvar("pk_ins_finish_1", "完成！");
+setvar("pk_ins_finish_2", " 已成功安装到你的设备.");
+setvar("pk_reboot",       "现在重启？");
+setvar("pk_ins_failed",   "安装失败");
+setvar("pk_exit_code",    "安装状态：");
+setvar("pk_finish",       "完成");
+setvar("pk_text_yes",     "我愿意承担风险");
+setvar("pk_text_yes_s",   "同意");
+setvar("pk_text_no",      "还是算了吧");
+setvar("pk_text_no_s",    "放弃");
+endif;
+
+viewbox(
+    "\n<@center>"+getvar("pk_name")+"</@>",
+    "<@center><b>\n" +ini_get("rom_device") + "</b>\n\n</@>" +
+    "\n\n\n\n  "+getvar("pk_version")+" \t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n" +
+    "  "+getvar("pk_author")+" \t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n" +
+    "  "+getvar("pk_release")+" \t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n" +
+    getvar("pk_press_next"),
     ""
 );
 
 if cmp(getvar("mount_check"),"!=","0") then
   alert(
-  "Error!",
-  "Failed to mount /system !\nEmmm... Please check...",
+  getvar("pk_error"),
+  getvar("pk_failed_mount"),
   "@warning",
-  "Abort"
+  getvar("pk_abort")
   );
   exec("umount", "/system");
   exit("");
@@ -39,93 +262,93 @@ endif;
 
 if file_getprop("/system/build.prop","ro.build.version.sdk")!="27" then
   alert(
-    "Error!",
-    "This kernel only for AOSP/LOS base Oreo Rom.\nYou're trying to flash an incompatible kernel.",
+    getvar("pk_error"),
+    getvar("pk_failed_sdk"),
     "@warning",
-    "Abort"
+    getvar("pk_abort")
   );
   exec("umount", "/system");
   exit("");
 endif;
 alert(
-  "NOTICE:",
-  "For best experience -\n\nDon't flash over other kernels. Ensure that you either have a previous version of Padon or the kernel that came with your rom.\n\n",
+  getvar("pk_notice")+":",
+  getvar("pk_notice_text"),
   "@warning",
-  "OK"
+  getvar("pk_ok")
 );
 
 selectbox(
-  "\n\n<@center>Choose a schedule</@>","<@center><b>\n\n\n\n\n\n\nChoose what you like.\nIf you do not understand,\nI suggest you use the Radon schedule.\n</b></@>","","ros.prop",
-  "Stock Radon schedule (Default)","",1,
-  "Stock Shadow schedule","",0
+  "\n\n<@center>"+getvar("pk_ros")+"</@>","<@center><b>\n\n\n\n\n\n\n"+getvar("pk_ros_1")+"\n</b></@>","","ros.prop",
+  getvar("pk_ros_s1"),"",1,
+  getvar("pk_ros_s2"),"",0
 );
 
 selectbox(
-  "\n\n<@center>Select profile</@>","<@center><b>\n\n\n\n\n\n\nChoose a profile based on your needs.\n</b></@>","","profile.prop",
-  "Balanced config","",1,
-  "Battery config","",0,
-  "Gaming config","",0
+  "\n\n<@center>"+getvar("pk_profile")+"</@>","<@center><b>\n\n\n\n\n\n\n"+getvar("pk_profile_1")+"\n</b></@>","","profile.prop",
+  getvar("pk_profile_s1"),"",1,
+  getvar("pk_profile_s2"),"",0,
+  getvar("pk_profile_s3"),"",0
 );
 
 form(
-	"Padon Config",
-	"Please choose according to your needs:",
+	getvar("pk_config"),
+	getvar("pk_config_1"),
 	"@default",
 	"padon.prop",
 	# SELINUX
-	"sel",				"SELinux Mode",					"",												"group",
-		"1",			"Permissive SELinux",					"Force Permissive",					"select",
-		"2",			"Permissive SELinux",					"Force Permissive",							"select",
-		"3",			"Permissive SELinux",					"Force Permissive",							"select.selected",
+	"sel",				getvar("pk_sel"),						"",												"group",
+		"1",			getvar("pk_sel_s11"),					getvar("pk_sel_s12"),							"select",
+		"2",			getvar("pk_sel_s21"),					getvar("pk_sel_s22"),							"select",
+		"3",			getvar("pk_sel_s31"),					getvar("pk_sel_s32"),							"select.selected",
 	# D2W
-	"d2w",				"DT2W",						"",												"group",
-		"1",			"Enable",							"With vibration",								"select",
-		"2",			"Enable",							"Without vibration",							"select",
-		"3",			"Disable",						"Saves battery",									"select.selected",
+	"d2w",				getvar("pk_d2w"),						"",												"group",
+		"1",			getvar("pk_d2w_s11"),					getvar("pk_d2w_s12"),							"select",
+		"2",			getvar("pk_d2w_s21"),					getvar("pk_d2w_s22"),							"select",
+		"3",			getvar("pk_d2w_s31"),					getvar("pk_d2w_s32"),							"select",
 	# FSYNC
-	"fsync",			"FSync",						"",									"group",
-		"1",			"Enable",							"More stable",								"select.selected",
-		"2",			"Disable",							"More performance",									"select",
+	"fsync",			getvar("pk_fsync"),						"",												"group",
+		"1",			getvar("pk_fsync_s11"),					getvar("pk_fsync_s12"),							"select.selected",
+		"2",			getvar("pk_fsync_s21"),					getvar("pk_fsync_s22"),							"select",
 	# NETMODE
-	"netmode",			"Netlink Mode",						"",									"group",
-		"1",			"OLD mode",							"For NOS, ABC and MCAOSP",								"select",
-		"2",			"LOS mode",							"For Cardinal and PE",									"select.selected",
+	"netmode",			getvar("pk_netmode"),						"",												"group",
+		"1",			getvar("pk_netmode_s11"),					getvar("pk_netmode_s12"),					"select",
+		"2",			getvar("pk_netmode_s21"),					getvar("pk_netmode_s22"),					"select.selected",
 	# CMODE
-	"cmode",			"Core Mode",						"",												"group",
-		"1",			"Quad-core mode",						"Only enable four SMALL core",	"select",
-		"2",			"Hexa-core mode",						"Six core full open (default)",								"select.selected",
+	"cmode",			getvar("pk_cmode"),						"",												"group",
+		"1",			getvar("pk_cmode_s11"),					getvar("pk_cmode_s12"),							"select",
+		"2",			getvar("pk_cmode_s21"),					getvar("pk_cmode_s22"),							"select.selected",
 	# JACK DETECTION
-	"jack",				"New Jack Detection",						"",									"group",
-		"1",			"Enable",							"If you have headset jack issues",								"select",
-		"2",			"Disable",						"",									"select.selected",
+	"jack",				getvar("pk_jack"),						"",												"group",
+		"1",			getvar("pk_jack_s11"),					getvar("pk_jack_s12"),							"select",
+		"2",			getvar("pk_jack_s21"),					getvar("pk_jack_s22"),							"select.selected",
 	# UV
-	"uv",				"CPU UV",						"",												"group",
-		"1",			"Default",							"Default",								"select.selected",
-		"2",			"Default - 20mV",					"Decrease by 20mV on the default.\nMay be more saves battery?",		"select",
+	"uv",				getvar("pk_uv"),						"",												"group",
+		"1",			getvar("pk_uv_s11"),					getvar("pk_uv_s12"),							"select.selected",
+		"2",			getvar("pk_uv_s21"),					getvar("pk_uv_s22"),							"select",
 	# USB_FAST_CHARGE
-	"usbfc",			"USB Fast Charge",					"",												"group",
-		"1",			"Enable",							"Increase charge current while charging via USB",		"select.selected",
-		"2",			"Disable",							"",												"select",
+	"usbfc",			getvar("pk_usbfc"),						"",												"group",
+		"1",			getvar("pk_usbfc_s11"),					getvar("pk_usbfc_s12"),							"select.selected",
+		"2",			getvar("pk_usbfc_s21"),					getvar("pk_usbfc_s22"),							"select",
 	# FAST_CHARGE
-	"crate",			"Fast Charge",						"",												"group",
-		"1",			"2000mA",						"Default",											"select.selected",
-		"2",			"2400mA (fast)",				"BOOM!",										"select",
+	"crate",			getvar("pk_crate"),						"",												"group",
+		"1",			getvar("pk_crate_s11"),					getvar("pk_crate_s12"),							"select.selected",
+		"2",			getvar("pk_crate_s21"),					getvar("pk_crate_s22"),							"select",
 	# COLOR
-	"color",			"Enhanced colors",			"",												"group",
-		"1",			"Warm",							"",												"select.selected",
-		"2",			"Cool",							"",												"select",
-		"3",			"Vivid",							"",												"select",
-		"4",			"Standard colors",						"Stock",											"select",
+	"color",			getvar("pk_color"),						"",												"group",
+		"1",			getvar("pk_color_s11"),					getvar("pk_color_s12"),							"select.selected",
+		"2",			getvar("pk_color_s21"),					getvar("pk_color_s22"),							"select",
+		"3",			getvar("pk_color_s31"),					getvar("pk_color_s32"),							"select",
+		"4",			getvar("pk_color_s41"),					getvar("pk_color_s42"),							"select",
 	# THERMAL
-	"thermal",			"Thermal engine",						"",												"group",
-		"1",			"Switch to old thermal",				"If you have any slow charging issue",						"select",
-		"2",			"Keep default",						"Do not touch my thermal engine files",							"select.selected"
+	"thermal",			getvar("pk_thermal"),					"",												"group",
+		"1",			getvar("pk_thermal_s11"),				getvar("pk_thermal_s12"),						"select",
+		"2",			getvar("pk_thermal_s21"),				getvar("pk_thermal_s22"),						"select.selected"
 );
 
 menubox(
-  "\n\n<@center>Ready to install</@>","<@center><b>\n\n\n\n\n\nPlease confirm\n</b></@>","","menu.prop",
-  "Install "+ini_get("rom_name")+" "+ini_get("rom_version"),"","@install",
-  "Abort installation","","@trash"
+  "\n\n<@center>"+getvar("pk_ready")+"</@>","<@center><b>\n\n\n\n\n\n"+getvar("pk_ready_1")+"\n</b></@>","","menu.prop",
+  getvar("pk_ready_s1")+ini_get("rom_name")+" "+ini_get("rom_version"),"","@install",
+  getvar("pk_ready_s2"),"","@trash"
 );
 
 if prop("menu.prop","selected")=="2"
@@ -136,24 +359,24 @@ endif;
 
 setvar("retstatus",
 install(
-  "<@center>\nInstalling</@>",
-  "<@center>\nInstalling Padon Kernel\nPlease wait</@>",
+  "<@center>\n"+getvar("pk_installing")+"</@>",
+  "<@center>\n"+getvar("pk_installing_1")+"</@>",
   "")
 );
 
-ini_set("text_next", "Finish");
+ini_set("text_next", getvar("pk_finish"));
 
 if getvar("retstatus")=="0" then
 checkviewbox(
-    "Installation Completed",
+    getvar("pk_ins_finish"),
   
-    "<#selectbg_g><b>Congratulations...</b></#>\n\n"+
-    "<b>"+ini_get("rom_name")+"</b> has been installed into your device.\n\n"+
-    "Installer Status: "+getvar("retstatus")+"\n\n",
+    "<#selectbg_g><b>"+getvar("pk_ins_finish_1")+"</b></#>\n\n"+
+    "<b>"+ini_get("rom_name")+"</b>"+getvar("pk_ins_finish_2")+"\n\n"+
+    getvar("pk_exit_code")+getvar("retstatus")+"\n\n",
 	
     "@welcome",
 
-    "Reboot your device now.",
+    getvar("pk_reboot"),
 
     "0",
 
@@ -161,7 +384,7 @@ checkviewbox(
 );
   
 else
-   viewbox("Installation Failed","\n\nInstaller Status: "+ getvar("retstatus"),"@warning");
+   viewbox(getvar("pk_ins_failed"),"\n\n"+getvar("pk_exit_code")+ getvar("retstatus"),"@warning");
 endif;
 
 if
