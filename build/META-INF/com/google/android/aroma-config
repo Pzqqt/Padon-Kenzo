@@ -1,8 +1,8 @@
 ini_set("rom_name",             "Padon");
-ini_set("rom_version",          "V6.3.14");
+ini_set("rom_version",          "V6.3.15");
 ini_set("rom_author",           "Umang96 & Pzqqt");
 ini_set("rom_device",           "Kenzo");
-ini_set("rom_date",             "2018.04.08");
+ini_set("rom_date",             "2018.04.10");
 # Chinese & English & Modify By Pzqqt
 
 ini_set("force_colorspace","rgba");
