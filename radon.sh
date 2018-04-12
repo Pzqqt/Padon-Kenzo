@@ -33,7 +33,7 @@ Start=$(date +"%s")
 DTBTOOL=$KERNEL_DIR/dtbTool
 cd $KERNEL_DIR
 export ARCH=arm64
-export CROSS_COMPILE="/home/pzqqt/bin/gcc-linaro-6.4.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-"
+export CROSS_COMPILE="/home/pzqqt/bin/gcc-linaro-6.4.1-2018.04-rc1-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-"
 echo -e "$yellow Running make clean before compiling \n$white"
 make clean > /dev/null
 if [ $qc == 2 ]; then
