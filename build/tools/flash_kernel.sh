@@ -82,8 +82,8 @@ fi
 rm -rf /tmp/ramdisk/init.darkness.rc
 rm -rf /tmp/ramdisk/init.radon.rc
 sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.rc
-sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.qcom.rc
-sed -i '/^import \/init\.padon\.rc/d' /tmp/ramdisk/init.qcom.rc
+sed -i '/^import init\.radon\.rc/d' /tmp/ramdisk/init.qcom.rc
+sed -i '/^import init\.padon\.rc/d' /tmp/ramdisk/init.qcom.rc
 # CLEAN END
 rm -rf /tmp/ramdisk/init.spectrum.rc
 rm -rf /tmp/ramdisk/init.spectrum.sh
