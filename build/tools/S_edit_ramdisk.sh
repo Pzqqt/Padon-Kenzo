@@ -309,11 +309,9 @@ echo "write /sys/kernel/mm/ksm/run 0" >> $CONFIGFILE
 echo "write /sys/kernel/mm/ksm/run_charging 0" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# CORE MODE" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu4/core_ctl/min_cpus 0" >> $CONFIGFILE
 if [ $CMODE == 1 ]; then
-echo "write /sys/devices/system/cpu/cpu4/core_ctl/max_cpus 0" >> $CONFIGFILE
-elif [ $CMODE == 2 ]; then
-echo "write /sys/devices/system/cpu/cpu4/core_ctl/max_cpus 2" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/online 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu5/online 0" >> $CONFIGFILE
 fi
 echo "" >> $CONFIGFILE
 echo "# CPU SCHEDULER" >> $CONFIGFILE

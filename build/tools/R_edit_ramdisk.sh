@@ -223,11 +223,9 @@ echo "# FSYNC" >> $CONFIGFILE
 echo "write /sys/module/sync/parameters/fsync_enabled $DFS" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# CORE MODE" >> $CONFIGFILE
-echo "write /sys/devices/system/cpu/cpu4/core_ctl/min_cpus 0" >> $CONFIGFILE
 if [ $CMODE == 1 ]; then
-echo "write /sys/devices/system/cpu/cpu4/core_ctl/max_cpus 0" >> $CONFIGFILE
-elif [ $CMODE == 2 ]; then
-echo "write /sys/devices/system/cpu/cpu4/core_ctl/max_cpus 2" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/online 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu5/online 0" >> $CONFIGFILE
 fi
 echo "" >> $CONFIGFILE
 VOLT=$(cat /tmp/aroma/padon.prop | grep -e "uv" | cut -d '=' -f2)
