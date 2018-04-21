@@ -74,10 +74,8 @@ cp /tmp/init.padon.rc /tmp/ramdisk/
 # COMPATIBILITY FIXES START
 cp /tmp/init.qcom.post_boot.sh /system/etc/init.qcom.post_boot.sh
 chmod 644 /system/etc/init.qcom.post_boot.sh
-if [ $(grep -c "lazytime" fstab.qcom) -ne 0 ]; then
 cp /tmp/fstab.qcom /tmp/ramdisk/
 chmod 640 /tmp/ramdisk/fstab.qcom
-fi
 # COMPATIBILITY FIXES END
 # CLEAN RAMDISK
 rm -rf /tmp/ramdisk/init.darkness.rc
