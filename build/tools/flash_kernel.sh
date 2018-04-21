@@ -60,7 +60,7 @@ cp -f /tmp/cpio /sbin/cpio
 cd /tmp/
 /sbin/busybox dd if=/dev/block/bootdevice/by-name/boot of=./boot.img
 ./unpackbootimg -i /tmp/boot.img
-if [ $(cat /tmp/boot.img-cmdline | grep -c "snd-soc-msm8x16-wcd.dig_core_collapse_enable=0") = 1 ];then
+if [ $(cat /tmp/boot.img-cmdline | grep -c "snd-soc-msm8x16-wcd.dig_core_collapse_enable=0") -ne 0 ];then
 # Found Shox Audio Mod cmdline, add it
 cmd=$cmd" snd-soc-msm8x16-wcd.dig_core_collapse_enable=0"
 fi
@@ -74,8 +74,18 @@ cp /tmp/init.padon.rc /tmp/ramdisk/
 # COMPATIBILITY FIXES START
 cp /tmp/init.qcom.post_boot.sh /system/etc/init.qcom.post_boot.sh
 chmod 644 /system/etc/init.qcom.post_boot.sh
-cp /tmp/fstab.qcom /tmp/ramdisk/
+if [ -f /tmp/ramdisk/fstab.qcom ];
+then
+if ([ "`grep "context=u:object_r:firmware_file:s0" /tmp/ramdisk/fstab.qcom`" ]);
+then
+rm /tmp/ramdisk/fstab.qcom
+cp /tmp/fstab.qcom /tmp/ramdisk/fstab.qcom
+else
+rm /tmp/ramdisk/fstab.qcom
+cp /tmp/fstab.qcom.no-context /tmp/ramdisk/fstab.qcom
+fi
 chmod 640 /tmp/ramdisk/fstab.qcom
+fi
 # COMPATIBILITY FIXES END
 # CLEAN RAMDISK
 rm -rf /tmp/ramdisk/init.darkness.rc
