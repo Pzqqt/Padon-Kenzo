@@ -56,9 +56,41 @@ cp /tmp/init.radon.rc /tmp/ramdisk/
 # COMPATIBILITY FIXES START
 cp /tmp/init.qcom.post_boot.sh /system/etc/init.qcom.post_boot.sh
 chmod 644 /system/etc/init.qcom.post_boot.sh
+<<<<<<< HEAD
 if [ $(grep -c "lazytime" fstab.qcom) -ne 0 ]; then
 cp /tmp/fstab.qcom /tmp/ramdisk/
 chmod 640 /tmp/ramdisk/fstab.qcom
+=======
+if [ -f /tmp/ramdisk/fstab.qcom ];
+then
+if ([ "`grep "context=u:object_r:firmware_file:s0" /tmp/ramdisk/fstab.qcom`" ]);
+then
+rm /tmp/ramdisk/fstab.qcom
+cp /tmp/fstab.qcom /tmp/ramdisk/fstab.qcom
+else
+rm /tmp/ramdisk/fstab.qcom
+cp /tmp/fstab.qcom.no-context /tmp/ramdisk/fstab.qcom
+fi
+chmod 640 /tmp/ramdisk/fstab.qcom
+fi
+# COMPATIBILITY FIXES END
+# CLEAN RAMDISK
+rm -rf /tmp/ramdisk/init.darkness.rc
+rm -rf /tmp/ramdisk/init.radon.rc
+sed -i '/^import \/init\.radon\.rc/d' /tmp/ramdisk/init.rc
+sed -i '/^import init\.radon\.rc/d' /tmp/ramdisk/init.qcom.rc
+sed -i '/^import init\.padon\.rc/d' /tmp/ramdisk/init.qcom.rc
+# CLEAN END
+rm -rf /tmp/ramdisk/init.spectrum.rc
+rm -rf /tmp/ramdisk/init.spectrum.sh
+if [ $ros -eq 2 ]; then
+mv /tmp/S_init.spectrum.rc /tmp/ramdisk/init.spectrum.rc
+mv /tmp/init.spectrum.sh /tmp/ramdisk/init.spectrum.sh
+chmod 0750 /tmp/ramdisk/init.spectrum.rc
+chmod 0750 /tmp/ramdisk/init.spectrum.sh
+if [ $(grep -c "import /init.spectrum.rc" /tmp/ramdisk/init.rc) == 0 ]; then
+    sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.spectrum.rc" /tmp/ramdisk/init.rc
+>>>>>>> 163a5a0759f... Fix a mistake
 fi
 if [ -f /tmp/ramdisk/init.darkness.rc ]; then
 rm /tmp/ramdisk/init.darkness.rc
