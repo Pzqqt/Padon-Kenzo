@@ -1,5 +1,6 @@
 ini_set("rom_name",             "Radon");
 ini_set("rom_version",          "V6.3-rebuild");
+ini_set("rom_author",           "Umang96 & Pzqqt");
 ini_set("rom_device",           "Kenzo");
 ini_set("rom_date",             "2018.05.25");
 
@@ -9,8 +10,6 @@ ini_set("force_colorspace","rgba");
 fontresload( "0", "ttf/Roboto-Regular.ttf", "12" );
 fontresload( "1", "ttf/Roboto-Regular.ttf", "16" ); 
 
-splash(2000, "radonsplash");
-
 theme("default");
 
 viewbox(
@@ -18,6 +17,7 @@ viewbox(
 
     "<@center><b>\n" + ini_get("rom_device") + "</b>\n\n</@>" +
     "\n\n\n\n  VERSION\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n" +
+    "  AUTHOR \t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n" +
     "  RELEASED\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n" +
     "Press Next to Continue...",
 
@@ -31,10 +31,25 @@ alert(
   "OK"
 );
 
+viewbox(
+  "<@center>\n\nNotice</@>",
+  "\n\n\n\n
+  
+<b>What's new?</b>
+
+  1.Rebuild with Linaro 6.4.1
+  2.Support new device tree
+  3.New jack detection
+  4.Netlink mode select
+  5.Some necessary patches
+  6.Nothing else",
+  "@welcome"
+);
+
 selectbox(
   "\n\nWhich selinux mode you want ?","<@center><b>\n\n\n\n\n\n\nPermissive gives more permissions to applications.\nEnforcing restricts some permissions. Choose default if you are not sure.\n</b></@>","","sel.prop",
-  "Default selinux (recommended)","",0,
-  "Enforcing Selinux","",0,
+  "Permissive Selinux","",0,
+  "Permissive Selinux","",0,
   "Permissive Selinux","",1
 );
 
@@ -42,7 +57,8 @@ selectbox(
   "\n\nDo you need dt2w ?","<@center><b>\n\n\n\n\n\n\nRemember !\n\nKeeping dt2w enabled will consume little more battery.\n</b></@>","","dt2w.prop",
   "Yes, enable it (with vibration)","",0,
   "Yes, enable it (without vibration)","",0,
-  "No, disable it (saves battery)","",1
+  "No, disable it (saves battery)","",0,
+  "Undefined\n (No conflict with Rom's own DT2W switch)","",1
 );
 
 selectbox(
@@ -62,6 +78,18 @@ selectbox(
   "\n\n<@center>Select quick charging support\nWarning ! </@>","<@center><b>\n\n\n\n\n\n\nThis will set your max charging rate limit.\nThis does not affect users with stock charger.\n</b></@>","","crate.prop",
   "2000 mA (default)","",1,
   "2400 mA (quick)","",0
+);
+
+selectbox(
+  "\n\n<@center>Select netlink mode</@>","<@center><b>\n\n\n\n\n\n\nThis will determine if Goodix fingerprinter can work.\n</b></@>","","netmode.prop",
+  "OLD Mode (For NOS, ABC and MCAOSP)","",1,
+  "LOS Mode (For Cardinal and PE)","",0
+);
+
+selectbox(
+  "\n\n<@center>Enable new jack detection?</@>","<@center><b>\n\n\n\n\n\n\nEnable if you have headset jack issues.\n</b></@>","","jack.prop",
+  "Enable","",0,
+  "Disable","",1
 );
 
 selectbox(
