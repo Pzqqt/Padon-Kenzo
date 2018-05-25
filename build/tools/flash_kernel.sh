@@ -68,7 +68,6 @@ fi
 if [ -f /tmp/ramdisk/init.darkness.rc ]; then
 rm /tmp/ramdisk/init.darkness.rc
 fi
-# COMPATIBILITY FIXES END
 chmod 0750 /tmp/ramdisk/init.radon.rc
 if [ $(grep -c "import /init.radon.rc" /tmp/ramdisk/init.rc) == 0 ]; then
    sed -i "/import \/init\.\${ro.hardware}\.rc/aimport /init.radon.rc" /tmp/ramdisk/init.rc
