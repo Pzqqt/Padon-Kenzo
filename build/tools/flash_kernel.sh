@@ -18,6 +18,7 @@
 selinx=$(cat /tmp/aroma/sel.prop | cut -d '=' -f2)
 qc=$(cat /tmp/aroma/crate.prop | cut -d '=' -f2)
 therm=$(cat /tmp/aroma/thermal.prop | cut -d '=' -f2)
+jk=$(cat /tmp/aroma/jack.prop | cut -d '=' -f2)
 nos1=`cat /system/build.prop | grep ro.product.name=`
 nos2=${nos1:16:8}
 if [ $nos2 == "nitrogen" ]; then
@@ -36,6 +37,9 @@ cmd=$cmd" androidboot.selinux=enforcing"
 elif [ $selinx -eq 3 ]; then
 cmd=$cmd" androidboot.selinux=permissive"
 fi
+if [ $jk -eq 2 ]; then
+cmd=$cmd" android.audiojackmode=stock"
+fi
 if [ $therm -eq 1 ]; then
 echo "Using old thermal engine"
 cp -rf /tmp/old-thermal/* /system/vendor/
@@ -44,7 +48,9 @@ chmod 0644 /system/vendor/lib/libthermalclient.so
 chmod 0644 /system/vendor/lib64/libthermalclient.so
 chmod 0644 /system/vendor/lib64/libthermalioctl.so
 fi
+if ! [ -f /system/etc/radon.sh ]; then
 cp /tmp/radon.sh /system/etc/radon.sh
+fi
 chmod 644 /system/etc/radon.sh
 cp -f /tmp/cpio /sbin/cpio
 cd /tmp/

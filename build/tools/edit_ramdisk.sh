@@ -95,10 +95,12 @@ echo "" >> $CONFIGFILE
 echo "# SWAPPINESS AND VFS CACHE PRESSURE" >> $CONFIGFILE
 echo "write /proc/sys/vm/swappiness $SWAP" >> $CONFIGFILE
 echo "write /proc/sys/vm/vfs_cache_pressure $VFS" >> $CONFIGFILE
+if [ $DT2W -ne 4 ]; then
 echo "" >> $CONFIGFILE
 echo "# DT2W" >> $CONFIGFILE
 echo "write /sys/android_touch/doubletap2wake " $DTP >> $CONFIGFILE
 echo "write /sys/android_touch/vib_strength " $VIBS >> $CONFIGFILE
+fi
 echo "" >> $CONFIGFILE
 COLOR=$(cat /tmp/aroma/color.prop | cut -d '=' -f2)
 echo "# KCAL" >> $CONFIGFILE
