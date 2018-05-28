@@ -1,8 +1,7 @@
 ini_set("rom_name",             "Radon");
-ini_set("rom_version",          "V6.3");
-ini_set("rom_author",           "Umang96");
+ini_set("rom_version",          "V6.3-rebuild");
 ini_set("rom_device",           "Kenzo");
-ini_set("rom_date",             "February 04, 2018");
+ini_set("rom_date",             "2018.05.25");
 
 ini_set("force_colorspace","rgba");
 #ini_set("dp","6");
@@ -19,7 +18,6 @@ viewbox(
 
     "<@center><b>\n" + ini_get("rom_device") + "</b>\n\n</@>" +
     "\n\n\n\n  VERSION\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n" +
-    "  AUTHOR \t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n" +
     "  RELEASED\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n" +
     "Press Next to Continue...",
 
@@ -79,6 +77,20 @@ selectbox(
   "No, new thermal","",1
 );
 
+menubox(
+  "\n\n<@center>Radon Installer</@>",
+  "<@center><b>\n\n\n\n\n\nReady to install\n</b></@>",
+  "",
+  "menu.prop",
+  "Install " + ini_get("rom_name") + " " + ini_get("rom_version"),"","@install",
+  "Abort installation","","@trash"
+);
+
+if prop("menu.prop","selected")=="2"
+then
+  exit("");
+endif;
+
 setvar("retstatus",
 install(
   "\nInstalling",
@@ -86,12 +98,31 @@ install(
   "")
 );
 
-viewbox(
-    "\n\n<@center>Try Radon Kernel Control</@>",
-
-    "\n\nCustom profile based kernel manager\n\n\n\n\nConsider installing the radon kernel control app from play store if you like this kernel, it's a custom profile based kernel management app using which you can change kernel settings in one click.\n\nYou can switch between radon profiles and you can also make your own profiles if you want to change any settings manually like cpu, gpu frequency etc.\n\nI am always adding more features in the app to make experience better, please send me your suggestions if any.",
-
-    "@radonicon"
-);
-
 ini_set("text_next", "Finish");
+
+if getvar("retstatus")=="0" then
+checkviewbox(
+    "Installation Completed",
+  
+    "<#selectbg_g><b>Congratulations...</b></#>\n\n"+
+    "<b>"+ini_get("rom_name")+"</b> has been installed into your device.\n\n"+
+    "Installer Status: "+getvar("retstatus")+"\n\n",
+	
+    "@welcome",
+
+    "Reboot your device now.",
+
+    "0",
+
+    "reboot_it"
+);
+  
+else
+   viewbox("Installation Failed","\n\nInstaller Status: "+ getvar("retstatus"),"@warning");
+endif;
+
+if
+  getvar("reboot_it")=="1"
+then
+  reboot("onfinish");
+endif;
