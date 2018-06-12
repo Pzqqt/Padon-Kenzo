@@ -141,7 +141,7 @@
 #define CALCULATE_VOUT_D(req_mv) (((req_mv - 650) * 10) / 25)
 
 static int tasha_cpe_debug_mode;
-int g_DebugMode = 1;
+int g_DebugMode = 0;
 struct switch_dev *g_audiowizard_force_preset_sdev = NULL;
 module_param(tasha_cpe_debug_mode, int,
 	     S_IRUGO | S_IWUSR | S_IWGRP);
