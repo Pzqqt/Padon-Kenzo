@@ -217,5 +217,9 @@ echo "# CPU & GPU UV" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/GPU_mV_table \"700 720 760 800 860 900 920 980 1020\"" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table \"740 760 820 920 980 1020 1050 1060 1070 780 800 870 910 970 1020 1040\"" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
+echo "# FIX EARPIECE" >> $CONFIGFILE
+echo "write /sys/module/snd_soc_msm8x16_wcd/parameters/huwifi_mode 0" >> $CONFIGFILE
+echo "write /sys/module/snd_soc_msm8x16_wcd/parameters/low_distort_amp 0" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
 echo "# RUN USERTWEAKS SERVICE" >> $CONFIGFILE
 echo "start usertweaks" >> $CONFIGFILE
