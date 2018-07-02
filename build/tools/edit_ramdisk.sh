@@ -15,7 +15,7 @@ FMAB=1843200
 TR=20000
 AID=N
 ABST=0
-TBST=0
+TBST=1
 GHLS=100
 GHLB=90
 SWAP=30
@@ -45,7 +45,7 @@ GFREQ=200000000
 elif [ $INTERACTIVE == 3 ]; then
 TLS="40 1017600:50 1190400:60 1305600:70 1382400:80 1401600:90"
 TLB="75 1382400:80 1747200:85"
-BOOST="0:1305600"
+BOOST="0:1305600 4:1305600"
 HSFS=1440000
 HSFB=1382400
 FMS=691200
@@ -54,8 +54,8 @@ FMAS=1440000
 FMAB=1843200
 TR=20000
 AID=N
-ABST=0
-TBST=0
+ABST=1
+TBST=1
 GHLS=95
 GHLB=80
 SWAP=40
@@ -153,32 +153,32 @@ echo "write /sys/devices/system/cpu/cpu3/online 1" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu4/online 1" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu5/online 1" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
-#echo "# TWEAK A53 CLUSTER GOVERNOR" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/online 1" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor \"interactive\"" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay 0" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load $GHLS" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate $TR" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq $HSFS" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy 0" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads \"$TLS\"" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time 40000" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq $FMS" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq $FMAS" >> $CONFIGFILE
-#echo "" >> $CONFIGFILE
-#echo "# TWEAK A72 CLUSTER GOVERNOR" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/online 1" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor \"interactive\"" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay \"19000 1382400:39000\"" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load $GHLB" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_rate $TR" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq $HSFB" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy 0" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads \"$TLB\"" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time 40000" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq $FMB" >> $CONFIGFILE
-#echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq $FMAB" >> $CONFIGFILE
-#echo "" >> $CONFIGFILE
+echo "# TWEAK A53 CLUSTER GOVERNOR" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/online 1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor \"interactive\"" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load $GHLS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate $TR" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq $HSFS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads \"$TLS\"" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time 40000" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq $FMS" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq $FMAS" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
+echo "# TWEAK A72 CLUSTER GOVERNOR" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/online 1" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor \"interactive\"" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay \"19000 1382400:39000\"" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load $GHLB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_rate $TR" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq $HSFB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy 0" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads \"$TLB\"" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time 40000" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq $FMB" >> $CONFIGFILE
+echo "write /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq $FMAB" >> $CONFIGFILE
+echo "" >> $CONFIGFILE
 echo "# GPU SETTINGS" >> $CONFIGFILE
 echo "write /sys/devices/soc.0/1c00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/default_pwrlevel $GLVL" >> $CONFIGFILE
 echo "write /sys/devices/soc.0/1c00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel $GLVL" >> $CONFIGFILE
@@ -202,16 +202,6 @@ echo "write /sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost $ABST" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# FSYNC" >> $CONFIGFILE
 echo "write /sys/module/sync/parameters/fsync_enabled $DFS" >> $CONFIGFILE
-echo "" >> $CONFIGFILE
-echo "# DISABLE WAKELOCKS" >> $CONFIGFILE
-echo "write /sys/module/wakeup/parameters/enable_qcom_rx_wakelock_ws 0" >> $CONFIGFILE
-echo "write /sys/module/wakeup/parameters/enable_wlan_extscan_wl_ws 0" >> $CONFIGFILE
-echo "write /sys/module/wakeup/parameters/enable_ipa_ws 0" >> $CONFIGFILE
-echo "write /sys/module/wakeup/parameters/enable_wlan_wow_wl_ws 0" >> $CONFIGFILE
-echo "write /sys/module/wakeup/parameters/enable_wlan_ws 0" >> $CONFIGFILE
-echo "write /sys/module/wakeup/parameters/enable_timerfd_ws 0" >> $CONFIGFILE
-echo "write /sys/module/wakeup/parameters/enable_netlink_ws 0" >> $CONFIGFILE
-echo "write /sys/module/wakeup/parameters/enable_netmgr_wl_ws 0" >> $CONFIGFILE
 echo "" >> $CONFIGFILE
 echo "# CPU & GPU UV" >> $CONFIGFILE
 echo "write /sys/devices/system/cpu/cpu0/cpufreq/GPU_mV_table \"700 720 760 800 860 900 920 980 1020\"" >> $CONFIGFILE
