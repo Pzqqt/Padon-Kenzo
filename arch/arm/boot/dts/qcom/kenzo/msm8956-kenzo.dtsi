@@ -25,19 +25,18 @@
 		bootargs = "sched_enable_hmp=1 boot_cpus=0,1,2,3,4,5";
 	};
 
-	/* make sure to remove system mount from fstab.qcom or set it recoveryonly. AGNI_OREO_SYSMOUNT_MARKER */
-	firmware: firmware {						/* AGNI_OREO_SYSMOUNT_MARKER */
-		android {								/* AGNI_OREO_SYSMOUNT_MARKER */
-			compatible = "android,firmware";	/* AGNI_OREO_SYSMOUNT_MARKER */
-            fstab {								/* AGNI_OREO_SYSMOUNT_MARKER */
-				compatible = "android,fstab";	/* AGNI_OREO_SYSMOUNT_MARKER */
-                system {						/* AGNI_OREO_SYSMOUNT_MARKER */
-            	    compatible = "android,system";	/* AGNI_OREO_SYSMOUNT_MARKER */
-                    dev = "/dev/block/platform/soc.0/7824900.sdhci/by-name/system";	/* AGNI_OREO_SYSMOUNT_MARKER */
-					type = "ext4";				/* AGNI_OREO_SYSMOUNT_MARKER */
-                    mnt_flags = "ro,barrier=1,noatime,nodiratime,discard";	/* AGNI_OREO_SYSMOUNT_MARKER */
-					fsmgr_flags = "wait";		/* AGNI_OREO_SYSMOUNT_MARKER */
-                    status = "ok";				/* AGNI_OREO_SYSMOUNT_MARKER */
+	firmware: firmware {
+		android {
+			compatible = "android,firmware";
+			fstab {
+				compatible = "android,fstab";
+				system {
+					compatible = "android,system";
+					dev = "/dev/block/platform/soc.0/7824900.sdhci/by-name/system";
+					type = "ext4";
+					mnt_flags = "ro,barrier=1,noatime,nodiratime,discard";
+					fsmgr_flags = "wait";
+					status = "ok";
 				};
 				
 				vendor {
@@ -47,10 +46,10 @@
 					mnt_flags = "ro,barrier=1,discard";
 					fsmgr_flags = "wait";
 					status = "ok";
-				};								/* AGNI_OREO_SYSMOUNT_MARKER */
-			};									/* AGNI_OREO_SYSMOUNT_MARKER */
-		};										/* AGNI_OREO_SYSMOUNT_MARKER */
-	};											/* AGNI_OREO_SYSMOUNT_MARKER */
+				};
+			};
+		};
+	};
 
 	aliases {
 		/* smdtty devices */
