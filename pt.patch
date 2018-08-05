@@ -1,0 +1,20 @@
+diff --git a/arch/arm/boot/dts/qcom/kenzo/msm8956-kenzo.dtsi b/arch/arm/boot/dts/qcom/kenzo/msm8956-kenzo.dtsi
+index 5e19e92307f..bdb33323841 100644
+--- a/arch/arm/boot/dts/qcom/kenzo/msm8956-kenzo.dtsi
++++ b/arch/arm/boot/dts/qcom/kenzo/msm8956-kenzo.dtsi
+@@ -38,15 +38,6 @@
+ 					fsmgr_flags = "wait";
+ 					status = "ok";
+ 				};
+-				
+-				vendor {
+-					compatible = "android,vendor";
+-					dev = "/dev/block/platform/soc.0/7824900.sdhci/by-name/cust";
+-					type = "ext4";
+-					mnt_flags = "ro,barrier=1,discard";
+-					fsmgr_flags = "wait";
+-					status = "ok";
+-				};
+ 			};
+ 		};
+ 	};

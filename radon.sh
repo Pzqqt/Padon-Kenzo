@@ -21,6 +21,9 @@ red='\033[0;31m'
 gre='\e[0;32m'
 echo -e ""
 echo -e "$gre ====================================\n\n Welcome to Radon building program !\n\n ===================================="
+echo -e "$gre \n 1    .Build radon for Treble Rom\n\n Other.Build radon for normal Rom\n"
+echo -n " Enter your choice:"
+read pt
 echo -e "$gre \n 1.Build radon without qc\n\n 2.Build radon with qc\n"
 echo -n " Enter your choice:"
 read qc
@@ -41,6 +44,9 @@ echo -e "$yellow Applying quick charging patch \n $white"
 git apply qc.patch
 elif [ $qc == 1 ]; then
 git apply -R qc.patch > /dev/null 2>&1
+fi
+if [ $pt != 1 ]; then
+git apply pt.patch
 fi
 make lineageos_kenzo_defconfig
 export KBUILD_BUILD_HOST="lenovo"
@@ -71,4 +77,7 @@ fi
 cd $KERNEL_DIR
 if [ $qc == 2 ]; then
 git apply -R qc.patch
+fi
+if [ $pt != 1 ]; then
+git apply -R pt.patch > /dev/null 2>&1
 fi
