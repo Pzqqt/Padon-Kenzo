@@ -38,6 +38,15 @@
                     mnt_flags = "ro,barrier=1,noatime,nodiratime,discard";	/* AGNI_OREO_SYSMOUNT_MARKER */
 					fsmgr_flags = "wait";		/* AGNI_OREO_SYSMOUNT_MARKER */
                     status = "ok";				/* AGNI_OREO_SYSMOUNT_MARKER */
+				};
+				
+				vendor {
+					compatible = "android,vendor";
+					dev = "/dev/block/platform/soc.0/7824900.sdhci/by-name/cust";
+					type = "ext4";
+					mnt_flags = "ro,barrier=1,discard";
+					fsmgr_flags = "wait,verify";
+					status = "ok";
 				};								/* AGNI_OREO_SYSMOUNT_MARKER */
 			};									/* AGNI_OREO_SYSMOUNT_MARKER */
 		};										/* AGNI_OREO_SYSMOUNT_MARKER */
