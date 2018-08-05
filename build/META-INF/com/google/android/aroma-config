@@ -1,8 +1,8 @@
 ini_set("rom_name",             "Radon");
-ini_set("rom_version",          "V6.3-rebuild-3");
+ini_set("rom_version",          "V6.3-rebuild-4");
 ini_set("rom_author",           "Umang96 & Pzqqt");
 ini_set("rom_device",           "Kenzo");
-ini_set("rom_date",             "2018.06.27");
+ini_set("rom_date",             "2018.08.05");
 
 ini_set("force_colorspace","rgba");
 #ini_set("dp","6");
@@ -42,9 +42,10 @@ viewbox(
   3.New jack detection
   4.Netlink mode select
   5.Fixed for replaced focaltech touchscreen devices
-  6.Initial import of DTS-Eagle driver 
-  7.Some necessary patches
-  8.Nothing else",
+  6.Initial import of DTS-Eagle driver
+  7.Import wireguard driver
+  8.Some necessary patches
+  9.Nothing else",
   "@welcome"
 );
 
