@@ -45,7 +45,7 @@
 					dev = "/dev/block/platform/soc.0/7824900.sdhci/by-name/cust";
 					type = "ext4";
 					mnt_flags = "ro,barrier=1,discard";
-					fsmgr_flags = "wait,verify";
+					fsmgr_flags = "wait";
 					status = "ok";
 				};								/* AGNI_OREO_SYSMOUNT_MARKER */
 			};									/* AGNI_OREO_SYSMOUNT_MARKER */
