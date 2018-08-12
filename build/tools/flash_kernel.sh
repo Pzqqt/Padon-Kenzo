@@ -17,17 +17,14 @@
  #
 selinx=$(cat /tmp/aroma/sel.prop | cut -d '=' -f2)
 qc=$(cat /tmp/aroma/crate.prop | cut -d '=' -f2)
+pt=$(cat /tmp/aroma/pt.prop | cut -d '=' -f2)
 therm=$(cat /tmp/aroma/thermal.prop | cut -d '=' -f2)
 net=$(cat /tmp/aroma/netmode.prop | cut -d '=' -f2)
 jk=$(cat /tmp/aroma/jack.prop | cut -d '=' -f2)
 #force permissive
 selinx=3
 zim=/tmp/Image1
-if [ $qc -eq 1 ]; then
-dim=/tmp/dt1.img
-elif [ $qc -eq 2 ]; then
-dim=/tmp/dt2.img
-fi
+dim="/tmp/dt"$pt$qc".img"
 cmd="androidboot.hardware=qcom ehci-hcd.park=3 androidboot.bootdevice=7824900.sdhci lpm_levels.sleep_disabled=1 ramoops_memreserve=4M"
 if [ $selinx -eq 2 ]; then
 cmd=$cmd" androidboot.selinux=enforcing"

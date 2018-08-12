@@ -50,6 +50,12 @@ viewbox(
 );
 
 selectbox(
+  "\n\nWhich type of Rom are you using? ?","<@center><b>\n\n\n\n\n\n\nPlease choose the correct one.\n</b></@>","","pt.prop",
+  "I‘m using Treble Rom","",0,
+  "I‘m using Normal Oreo Rom","",1
+);
+
+selectbox(
   "\n\nWhich selinux mode you want ?","<@center><b>\n\n\n\n\n\n\nForce permissive here.\n</b></@>","","sel.prop",
   "Permissive Selinux","",0,
   "Permissive Selinux","",0,
