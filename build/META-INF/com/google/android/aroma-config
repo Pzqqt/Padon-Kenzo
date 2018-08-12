@@ -1,8 +1,8 @@
 ini_set("rom_name",             "Radon");
-ini_set("rom_version",          "V6.3-rebuild-4");
+ini_set("rom_version",          "V6.3-rebuild-5");
 ini_set("rom_author",           "Umang96 & Pzqqt");
 ini_set("rom_device",           "Kenzo");
-ini_set("rom_date",             "2018.08.05");
+ini_set("rom_date",             "2018.08.12");
 
 ini_set("force_colorspace","rgba");
 #ini_set("dp","6");
@@ -43,7 +43,10 @@ viewbox(
   4.Initial import of DTS-Eagle driver
   5.Import wireguard driver
   6.Some necessary patches
-  7.Nothing else",
+  7.Disable some tracing(Thanks to psndna88)
+  8.Added Cultivation & Darkness CPU Governor
+  9.Other some optimizations
+",
   "@welcome"
 );
 
