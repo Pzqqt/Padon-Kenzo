@@ -1,8 +1,8 @@
 ini_set("rom_name",             "Radon");
-ini_set("rom_version",          "V6.3-rebuild-4");
+ini_set("rom_version",          "V6.3-rebuild-5");
 ini_set("rom_author",           "Umang96 & Pzqqt");
 ini_set("rom_device",           "Kenzo");
-ini_set("rom_date",             "2018.08.05");
+ini_set("rom_date",             "2018.08.12");
 
 ini_set("force_colorspace","rgba");
 #ini_set("dp","6");
@@ -44,13 +44,16 @@ viewbox(
   5.Fixed for replaced focaltech touchscreen devices
   6.Initial import of DTS-Eagle driver
   7.Import wireguard driver
-  8.Some necessary patches
-  9.Nothing else",
+  8.Support Treble Roms
+  9.Disable some tracing(Thanks to psndna88)
+  10.Added Cultivation & Darkness CPU Governor
+  11.Other some optimizations
+",
   "@welcome"
 );
 
 selectbox(
-  "\n\nWhich type of Rom are you using? ?","<@center><b>\n\n\n\n\n\n\nPlease choose the correct one.\n</b></@>","","pt.prop",
+  "\n\nWhich type of Rom are you using?","<@center><b>\n\n\n\n\n\n\nPlease choose the correct one.\n</b></@>","","pt.prop",
   "I‘m using Treble Rom","",0,
   "I‘m using Normal Oreo Rom","",1
 );
