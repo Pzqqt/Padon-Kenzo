@@ -59,9 +59,8 @@ selectbox(
 );
 
 selectbox(
-  "\n\nWhich selinux mode you want ?","<@center><b>\n\n\n\n\n\n\nForce permissive here.\n</b></@>","","sel.prop",
-  "Permissive Selinux","",0,
-  "Permissive Selinux","",0,
+  "\n\nWhich selinux mode you want ?","<@center><b>\n\n\n\n\n\n\nPermissive gives more permissions to applications.\nEnforcing restricts some permissions.\n\nChoose Permissive if you are not sure \nor face some problems with Enforcing.\n</b></@>","","sel.prop",
+  "Enforcing Selinux","",0,
   "Permissive Selinux","",1
 );
 

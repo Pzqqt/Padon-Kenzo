@@ -22,14 +22,18 @@ therm=$(cat /tmp/aroma/thermal.prop | cut -d '=' -f2)
 net=$(cat /tmp/aroma/netmode.prop | cut -d '=' -f2)
 jk=$(cat /tmp/aroma/jack.prop | cut -d '=' -f2)
 ftfw=$(cat /tmp/aroma/ftfw.prop | cut -d '=' -f2)
-#force permissive
-selinx=3
+nos1=`cat /system/build.prop | grep ro.product.name=`
+nos2=${nos1:16:8}
+if [ $nos2 == "nitrogen" ]; then
+echo "NitrogenOS detected, forcing permissive"
+selinx=2
+fi
 zim=/tmp/Image1
 dim="/tmp/dt"$pt$qc".img"
 cmd="androidboot.hardware=qcom ehci-hcd.park=3 androidboot.bootdevice=7824900.sdhci lpm_levels.sleep_disabled=1 ramoops_memreserve=4M"
-if [ $selinx -eq 2 ]; then
+if [ $selinx -eq 1 ]; then
 cmd=$cmd" androidboot.selinux=enforcing"
-elif [ $selinx -eq 3 ]; then
+elif [ $selinx -eq 2 ]; then
 cmd=$cmd" androidboot.selinux=permissive"
 fi
 if [ $net -eq 1 ]; then
