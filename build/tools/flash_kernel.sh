@@ -19,6 +19,7 @@ selinx=$(cat /tmp/aroma/sel.prop | cut -d '=' -f2)
 qc=$(cat /tmp/aroma/crate.prop | cut -d '=' -f2)
 therm=$(cat /tmp/aroma/thermal.prop | cut -d '=' -f2)
 jk=$(cat /tmp/aroma/jack.prop | cut -d '=' -f2)
+ftfw=$(cat /tmp/aroma/ftfw.prop | cut -d '=' -f2)
 nos1=`cat /system/build.prop | grep ro.product.name=`
 nos2=${nos1:16:8}
 if [ $nos2 == "nitrogen" ]; then
@@ -39,6 +40,9 @@ cmd=$cmd" androidboot.selinux=permissive"
 fi
 if [ $jk -eq 2 ]; then
 cmd=$cmd" android.audiojackmode=stock"
+fi
+if [ $ftfw -eq 1 ]; then
+cmd=$cmd" androidboot.ft5346.flash=force"
 fi
 if [ $therm -eq 1 ]; then
 echo "Using old thermal engine"
