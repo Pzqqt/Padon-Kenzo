@@ -105,6 +105,12 @@ selectbox(
 );
 
 selectbox(
+  "\n\n<@center>Enable Focaltech FT5346 Forced\nFirmware Update?</@>","<@center><b>\n\n\n\n\n\n\nEnable if your touchscreen has been replaced\n& you have issues with it on custom kernels.\n\nDisable if your touchscreen has no problems.\n</b></@>","","ftfw.prop",
+  "Enable","",0,
+  "Disable","",1
+);
+
+selectbox(
   "\n\nWant enhanced colors ?","<@center><b>\n\n\n\n\n\n\nIf you choose yes then display colors will be tuned. Keep livedisplay off to see real colors.\n</b></@>","","color.prop",
   "Yes, enhanced colors (warm)","",1,
   "Yes, enhanced colors (cool)","",0,

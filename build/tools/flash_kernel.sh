@@ -21,6 +21,7 @@ pt=$(cat /tmp/aroma/pt.prop | cut -d '=' -f2)
 therm=$(cat /tmp/aroma/thermal.prop | cut -d '=' -f2)
 net=$(cat /tmp/aroma/netmode.prop | cut -d '=' -f2)
 jk=$(cat /tmp/aroma/jack.prop | cut -d '=' -f2)
+ftfw=$(cat /tmp/aroma/ftfw.prop | cut -d '=' -f2)
 #force permissive
 selinx=3
 zim=/tmp/Image1
@@ -38,6 +39,9 @@ cmd=$cmd" android.gdxnetlink=los"
 fi
 if [ $jk -eq 2 ]; then
 cmd=$cmd" android.audiojackmode=stock"
+fi
+if [ $ftfw -eq 1 ]; then
+cmd=$cmd" androidboot.ft5346.flash=force"
 fi
 if [ $therm -eq 1 ]; then
 echo "Using old thermal engine"
