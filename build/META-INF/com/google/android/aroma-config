@@ -1,8 +1,8 @@
 ini_set("rom_name",             "Radon");
-ini_set("rom_version",          "V6.3-rebuild-6");
+ini_set("rom_version",          "V6.3-rebuild-6.1");
 ini_set("rom_author",           "Umang96 & Pzqqt");
 ini_set("rom_device",           "Kenzo");
-ini_set("rom_date",             "2018.10.13");
+ini_set("rom_date",             "2018.10.14");
 
 ini_set("force_colorspace","rgba");
 #ini_set("dp","6");
